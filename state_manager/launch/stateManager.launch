@@ -4,6 +4,8 @@
 <!--
   <include file="$(find watchdog)/launch/watchdog.launch" />
 -->
+<!--
   <node name="node_state_monitor" type="node_state_monitor" pkg="state_manager" respawn="true" />
+-->
 
 </launch>
