@@ -34,6 +34,7 @@
 *
 * Author:  Evangelos Apostolidis
 *********************************************************************/
+#include <std_msgs/Float64.h>
 #include <sensor_msgs/JointState.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -49,17 +50,21 @@ namespace pandora_common
       ros::Subscriber imageSubscriber_;
       ros::Subscriber depthImageSubscriber_;
       ros::Subscriber pointCloudSubscriber_;
+      ros::Subscriber pitchCommandSubscriber_;
+      ros::Subscriber yawCommandSubscriber_;
 
       ros::Publisher imagePublisher_;
       ros::Publisher depthImagePublisher_;
       ros::Publisher pointCloudPublisher_;
 
-      double previousPitch_;
-      double previousYaw_;
-      double pitchMovement_;
-      double yawMovement_;
-      double movementThreshold_;
+      double pitchCommand_;
+      double yawCommand_;
+      double pitchError_;
+      double yawError_;
+      double errorThreshold_;
 
+      void pitchCommandCallback(const std_msgs::Float64ConstPtr& msg);
+      void yawCommandCallback(const std_msgs::Float64ConstPtr& msg);
       void jointStatesCallback(const sensor_msgs::JointStateConstPtr& msg);
       void imageCallback(const sensor_msgs::ImageConstPtr& msg);
       void depthImageCallback(const sensor_msgs::ImageConstPtr& msg);
@@ -71,25 +76,37 @@ namespace pandora_common
 
   KinectMovementFilter::KinectMovementFilter()
   {
-    if ( nodeHandle_.hasParam("movementThreshold") )
+    if ( nodeHandle_.hasParam("errorThreshold") )
     {
-      nodeHandle_.getParam("movementThreshold", movementThreshold_);
+      nodeHandle_.getParam("errorThreshold", errorThreshold_);
       ROS_DEBUG_STREAM(
-        "[kinect_movement_filter]: Got parameter movementThreshold : " <<
-        movementThreshold_ << std::endl);
+        "[kinect_movement_filter]: Got parameter errorThreshold : " <<
+        errorThreshold_ << std::endl);
     }
     else
     {
       ROS_DEBUG_STREAM(
         "[kinect_movement_filter] : " <<
-        "Parameter movementThreshold not found. Using Default" << std::endl);
-      movementThreshold_ = 0.017;
+        "Parameter errorThreshold not found. Using Default" << std::endl);
+      errorThreshold_ = 0.017;
     }
 
-    previousPitch_ = 0;
-    previousYaw_ = 0;
-    pitchMovement_ = movementThreshold_;
-    yawMovement_ = movementThreshold_;
+    pitchCommand_ = 0;
+    yawCommand_ = 0;
+    pitchError_ = errorThreshold_;
+    yawError_ = errorThreshold_;
+
+    pitchCommandSubscriber_ = nodeHandle_.subscribe(
+      "/kinect_pitch_controller/command",
+      1,
+      &KinectMovementFilter::pitchCommandCallback,
+      this);
+
+    yawCommandSubscriber_ = nodeHandle_.subscribe(
+      "/kinect_yaw_controller/command",
+      1,
+      &KinectMovementFilter::yawCommandCallback,
+      this);
 
     jointStateSubscriber_ = nodeHandle_.subscribe(
       "/joint_states",
@@ -132,6 +149,18 @@ namespace pandora_common
   {
   }
 
+  void KinectMovementFilter::pitchCommandCallback(
+    const std_msgs::Float64ConstPtr& msg)
+  {
+    pitchCommand_ = msg->data;
+  }
+
+  void KinectMovementFilter::yawCommandCallback(
+    const std_msgs::Float64ConstPtr& msg)
+  {
+    yawCommand_ = msg->data;
+  }
+
   void KinectMovementFilter::jointStatesCallback(
     const sensor_msgs::JointStateConstPtr& msg)
   {
@@ -139,13 +168,11 @@ namespace pandora_common
     {
       if (msg->name[ii] == "kinect_pitch_joint")
       {
-        pitchMovement_ = msg->position[ii] - previousPitch_;
-        previousPitch_ = msg->position[ii];
+        pitchError_ = msg->position[ii] - pitchCommand_;
       }
       if (msg->name[ii] == "kinect_yaw_joint")
       {
-        yawMovement_ = msg->position[ii] - previousYaw_;
-        previousYaw_ = msg->position[ii];
+        yawError_ = msg->position[ii] - yawCommand_;
       }
     }
   }
@@ -153,8 +180,8 @@ namespace pandora_common
   void KinectMovementFilter::imageCallback(
     const sensor_msgs::ImageConstPtr& msg)
   {
-    if (pitchMovement_ < movementThreshold_ &&
-      yawMovement_ < movementThreshold_)
+    if (pitchError_ < errorThreshold_ &&
+      yawError_ < errorThreshold_)
     {
       imagePublisher_.publish(*msg);
     }
@@ -163,8 +190,8 @@ namespace pandora_common
   void KinectMovementFilter::depthImageCallback(
     const sensor_msgs::ImageConstPtr& msg)
   {
-    if (pitchMovement_ < movementThreshold_ &&
-      yawMovement_ < movementThreshold_)
+    if (pitchError_ < errorThreshold_ &&
+      yawError_ < errorThreshold_)
     {
       depthImagePublisher_.publish(*msg);
     }
@@ -173,8 +200,8 @@ namespace pandora_common
   void KinectMovementFilter::pointCloudCallback(
     const sensor_msgs::PointCloud2ConstPtr& msg)
   {
-    if (pitchMovement_ < movementThreshold_ &&
-      yawMovement_ < movementThreshold_)
+    if (pitchError_ < errorThreshold_ &&
+      yawError_ < errorThreshold_)
     {
       pointCloudPublisher_.publish(*msg);
     }
