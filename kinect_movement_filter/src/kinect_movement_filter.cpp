@@ -88,7 +88,7 @@ namespace pandora_common
       ROS_DEBUG_STREAM(
         "[kinect_movement_filter] : " <<
         "Parameter errorThreshold not found. Using Default" << std::endl);
-      errorThreshold_ = 0.017;
+      errorThreshold_ = 0.012;
     }
 
     pitchCommand_ = 0;
@@ -115,7 +115,7 @@ namespace pandora_common
       this);
 
     imageSubscriber_ = nodeHandle_.subscribe(
-      "/kinect/image",
+      "/kinect/rgb/image_raw",
       1,
       &KinectMovementFilter::imageCallback,
       this);
@@ -127,22 +127,22 @@ namespace pandora_common
       this);
 
     pointCloudSubscriber_ = nodeHandle_.subscribe(
-      "/kinect/point_cloud",
+      "/kinect/depth_registered/image_raw",
       1,
       &KinectMovementFilter::pointCloudCallback,
       this);
 
     imagePublisher_ = nodeHandle_.advertise<sensor_msgs::Image>(
-      "/stable/kinect/image",
-      5);
+      "/kinect/rgb/image_raw/still",
+      1);
 
     depthImagePublisher_ = nodeHandle_.advertise<sensor_msgs::Image>(
-      "/stable/kinect/depth/image",
-      5);
+      "/kinect/depth/image/still",
+      1);
 
     pointCloudPublisher_ = nodeHandle_.advertise<sensor_msgs::PointCloud2>(
-      "/stable/kinect/point_cloud",
-      5);
+      "/kinect/depth_registered/image_raw/still",
+      1);
   }
 
   KinectMovementFilter::~KinectMovementFilter()
@@ -180,8 +180,8 @@ namespace pandora_common
   void KinectMovementFilter::imageCallback(
     const sensor_msgs::ImageConstPtr& msg)
   {
-    if (pitchError_ < errorThreshold_ &&
-      yawError_ < errorThreshold_)
+    if (fabs(pitchError_) < fabs(errorThreshold_) &&
+      fabs(yawError_) < fabs(errorThreshold_))
     {
       imagePublisher_.publish(*msg);
     }
@@ -190,8 +190,8 @@ namespace pandora_common
   void KinectMovementFilter::depthImageCallback(
     const sensor_msgs::ImageConstPtr& msg)
   {
-    if (pitchError_ < errorThreshold_ &&
-      yawError_ < errorThreshold_)
+    if (fabs(pitchError_) < fabs(errorThreshold_) &&
+      fabs(yawError_) < fabs(errorThreshold_))
     {
       depthImagePublisher_.publish(*msg);
     }
@@ -200,8 +200,8 @@ namespace pandora_common
   void KinectMovementFilter::pointCloudCallback(
     const sensor_msgs::PointCloud2ConstPtr& msg)
   {
-    if (pitchError_ < errorThreshold_ &&
-      yawError_ < errorThreshold_)
+    if (fabs(pitchError_) < fabs(errorThreshold_) &&
+      fabs(yawError_) < fabs(errorThreshold_))
     {
       pointCloudPublisher_.publish(*msg);
     }
