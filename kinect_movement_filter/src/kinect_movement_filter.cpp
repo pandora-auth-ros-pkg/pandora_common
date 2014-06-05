@@ -63,6 +63,10 @@ namespace pandora_common
       double yawError_;
       double errorThreshold_;
 
+      std::string imageTopic_;
+      std::string depthTopic_;
+      std::string pointCloudTopic_;
+
       void pitchCommandCallback(const std_msgs::Float64ConstPtr& msg);
       void yawCommandCallback(const std_msgs::Float64ConstPtr& msg);
       void jointStatesCallback(const sensor_msgs::JointStateConstPtr& msg);
@@ -76,19 +80,65 @@ namespace pandora_common
 
   KinectMovementFilter::KinectMovementFilter()
   {
-    if ( nodeHandle_.hasParam("errorThreshold") )
+    if ( nodeHandle_.hasParam("/kinect_movement_filter/error_threshold") )
     {
-      nodeHandle_.getParam("errorThreshold", errorThreshold_);
+      nodeHandle_.getParam("/kinect_movement_filter/error_threshold", errorThreshold_);
       ROS_DEBUG_STREAM(
         "[kinect_movement_filter]: Got parameter errorThreshold : " <<
-        errorThreshold_ << std::endl);
+        errorThreshold_);
     }
     else
     {
       ROS_DEBUG_STREAM(
         "[kinect_movement_filter] : " <<
-        "Parameter errorThreshold not found. Using Default" << std::endl);
+        "Parameter errorThreshold not found. Using Default 0.012");
       errorThreshold_ = 0.012;
+    }
+
+    if ( nodeHandle_.hasParam("/kinect_movement_filter/image_topic") )
+    {
+      nodeHandle_.getParam("/kinect_movement_filter/image_topic", imageTopic_);
+      ROS_DEBUG_STREAM(
+        "[kinect_movement_filter]: Got parameter image_topic : " <<
+        imageTopic_);
+    }
+    else
+    {
+      ROS_DEBUG_STREAM(
+        "[kinect_movement_filter] : " <<
+        "Parameter image_topic not found. Using Default /kinect/rgb/image_raw");
+      imageTopic_ = "/kinect/rgb/image_raw";
+    }
+
+    if ( nodeHandle_.hasParam("/kinect_movement_filter/depth_topic") )
+    {
+      nodeHandle_.getParam("/kinect_movement_filter/depth_topic", depthTopic_);
+      ROS_DEBUG_STREAM(
+        "[kinect_movement_filter]: Got parameter depth_topic : " <<
+        depthTopic_);
+    }
+    else
+    {
+      ROS_DEBUG_STREAM(
+        "[kinect_movement_filter] : " <<
+        "Parameter depth_topic not found. Using Default /kinect/depth/image");
+      depthTopic_ = "/kinect/depth/image";
+    }
+
+    if ( nodeHandle_.hasParam("/kinect_movement_filter/point_cloud_topic") )
+    {
+      nodeHandle_.getParam("/kinect_movement_filter/point_cloud_topic", pointCloudTopic_);
+      ROS_DEBUG_STREAM(
+        "[kinect_movement_filter]: Got parameter point_cloud_topic : " <<
+        pointCloudTopic_);
+    }
+    else
+    {
+      ROS_DEBUG_STREAM(
+        "[kinect_movement_filter] : " <<
+        "Parameter point_cloud_topic not found. " <<
+        "Using Default /kinect/depth_registered/points");
+      pointCloudTopic_ = "/kinect/depth_registered/points";
     }
 
     pitchCommand_ = 0;
@@ -115,33 +165,33 @@ namespace pandora_common
       this);
 
     imageSubscriber_ = nodeHandle_.subscribe(
-      "/kinect/rgb/image_raw",
+      imageTopic_,
       1,
       &KinectMovementFilter::imageCallback,
       this);
 
     depthImageSubscriber_ = nodeHandle_.subscribe(
-      "/kinect/depth/image",
+      depthTopic_,
       1,
       &KinectMovementFilter::depthImageCallback,
       this);
 
     pointCloudSubscriber_ = nodeHandle_.subscribe(
-      "/kinect/depth_registered/image_raw",
+      pointCloudTopic_,
       1,
       &KinectMovementFilter::pointCloudCallback,
       this);
 
     imagePublisher_ = nodeHandle_.advertise<sensor_msgs::Image>(
-      "/kinect/rgb/image_raw/still",
+      imageTopic_ + "/still",
       1);
 
     depthImagePublisher_ = nodeHandle_.advertise<sensor_msgs::Image>(
-      "/kinect/depth/image/still",
+      depthTopic_ + "/still",
       1);
 
     pointCloudPublisher_ = nodeHandle_.advertise<sensor_msgs::PointCloud2>(
-      "/kinect/depth_registered/image_raw/still",
+      pointCloudTopic_ + "/still",
       1);
   }
 
