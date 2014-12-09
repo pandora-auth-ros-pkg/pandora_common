@@ -18,7 +18,7 @@
   <run_depend>state_manager</run_depend>
   <run_depend>state_manager_communications</run_depend>
   <run_depend>watchdog</run_depend>
-  <run_depend>watchdog_communications</run_depend>
+  <run_depend>watchdog_msgs</run_depend>
   <run_depend>remote_mutex</run_depend>
   <run_depend>remote_mutex_msgs</run_depend>
   <run_depend>pandora_common_msgs</run_depend>
