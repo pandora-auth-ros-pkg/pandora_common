@@ -16,7 +16,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   
   <run_depend>state_manager</run_depend>
-  <run_depend>state_manager_communications</run_depend>
+  <run_depend>state_manager_msgs</run_depend>
   <run_depend>watchdog</run_depend>
   <run_depend>watchdog_msgs</run_depend>
   <run_depend>remote_mutex</run_depend>
