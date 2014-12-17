@@ -1,6 +1,6 @@
 #include "rosbag/player.h"
 #include "boost/program_options.hpp"
-#include "node_tests/bags_option_parser.h"
+#include "bag_player/bags_option_parser.h"
 #include "rosgraph_msgs/Clock.h"
 #include <time.h>
 #include "ros/time.h"
