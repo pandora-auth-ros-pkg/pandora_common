@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Software License Agreement
 __version__ = "0.0.1"
 __status__ = "Production"
@@ -32,91 +31,83 @@ __copyright__ = "Copyright (c) 2014, P.A.N.D.O.R.A. Team. All rights reserved."
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-__author__ = "Tsirigotis Christos"
+__author__ = "Tsirigotis Christos, Peppas Kostas and Lykartsis Giannis"
 __maintainer__ = "Tsirigotis Christos"
 __email__ = "tsirif@gmail.com"
 
-import math
+from collections import defaultdict
 
 import unittest
 
 import rospy
-import roslib
 import actionlib
-import sys
-import rosbag
-from tf.transformations import euler_from_quaternion
-from tf.transformations import quaternion_from_euler
 
 from pandora_testing_tools.msg import ReplayBagsAction
 from pandora_testing_tools.msg import ReplayBagsGoal
 from state_manager.state_client import StateClient
-from geometry_msgs.msg import Point
-
-def distance(a, b):
-
-    return math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2 + (a.z - b.z)**2)
-
-def isOrientationReversed(a, b):
-
-    roll, pitch, yaw = euler_from_quaternion([a.x, a.y, a.z, a.w])
-    reversed_a = quaternion_from_euler(roll, pitch, yaw + math.pi)
-    distance = math.sqrt((reversed_a[0] - b.x)**2 + (reversed_a[1] - b.y)**2 + (reversed_a[2] - b.z)**2 + (reversed_a[3] - b.w)**2)
-    return distance == 0
-
-def isPositionGrounded(a, b):
-
-    a.z = 0
-    return distance(a, b) == 0
-
-def direction(a, b):
-        
-    dire = Point()
-    norm = distance(a, b)
-    dire.x = (b.x - a.x)/norm
-    dire.y = (b.y - a.y)/norm
-    dire.z = (b.z - a.z)/norm
-    return dire
 
 class TestBase(unittest.TestCase):
 
-    @classmethod
-    def mockCallback(cls, data):
-
-        for i in range(len(cls.messageTypes)):
-            if isinstance(data, cls.messageTypes[i]):
-                cls.messageList[i].append(data)
-        cls.replied = True
+    def setUp(self):
+        for topic in self.messageList.keys():
+            self.messageList[topic] = []
 
     @classmethod
-    def connect(cls, subscriber_topics, publisher_topics, state=2, with_bag=True):
+    def mockCallback(cls, data, output_topic):
+        #rospy.logdebug("Got message from topic : "+str(output_topic))
+        #rospy.logdebug(data)
+        cls.messageList[output_topic].append(data)
+        cls.repliedList[output_topic] = True
+
+    def mockPublish(self, input_topic, output_topic, data):
+        self.repliedList[output_topic] = False
+        if not isinstance(data, self.publishedTypes[input_topic]):
+            rospy.logerr("[mockPublish] Publishes wrong message type.")
+        self.publishers[input_topic].publish(data)
+        rospy.sleep(self.publish_wait_duration)
+
+    def playFromBag(self, block):
+
+        self.bag_client.send_goal(self.goal)
+        if block is True:
+            self.bag_client.wait_for_result()
+
+    def assertSimpleResult(self, input_topic, input_data,
+                           output_topic, assert_data):
+        self.mockPublish(input_topic, output_topic, input_data)
+        self.assertTrue(self.repliedList[output_topic])
+        self.assertEqual(len(self.messageList[output_topic]), 1)
+        output_data = self.messageList[output_topic][0]
+        self.assertEqual(output_data, assert_data)
+
+    @classmethod
+    def connect(cls, subscriber_topics, publisher_topics, state, with_bag):
 
         cls.state_changer = StateClient()
         cls.state_changer.client_initialize()
         rospy.sleep(0.1)
         cls.state_changer.transition_to_state(state)
 
-        cls.replied = False
-        cls.messageList = []
-        cls.subscribers = []
-        cls.messageTypes= []
-        cls.publishers = []
+        cls.repliedList = defaultdict(bool)
+        cls.messageList = defaultdict(list)
+        cls.subscribers = dict()
+        cls.publishedTypes = dict()
+        cls.publishers = dict()
 
         for topic, messagePackage, messageType in subscriber_topics:
             _temp = __import__(messagePackage+'.msg', globals(), locals(), messageType, -1)
             messageTypeObj = getattr(_temp, messageType)
-            cls.messageTypes.append(messageTypeObj)
-            cls.messageList.append([])
             mock_subscriber = rospy.Subscriber(
-                topic, 
-                messageTypeObj, cls.mockCallback)
-            cls.subscribers.append(mock_subscriber)
-        
+                topic, messageTypeObj, cls.mockCallback, topic)
+            cls.subscribers[topic] = mock_subscriber
+
+        cls.publish_wait_duration = rospy.Duration(2)
         for topic, messagePackage, messageType in publisher_topics:
             _temp = __import__(messagePackage+'.msg', globals(), locals(), messageType, -1)
             messageTypeObj = getattr(_temp, messageType)
+            cls.publishedTypes[topic] = messageTypeObj
             mock_publisher = rospy.Publisher(topic, messageTypeObj)
-            cls.publishers.append(mock_publisher)
+            cls.publishers[topic] = mock_publisher
 
         if with_bag:
             cls.bag_client = actionlib.SimpleActionClient('/test/bag_player', ReplayBagsAction)
@@ -128,15 +119,7 @@ class TestBase(unittest.TestCase):
     @classmethod
     def disconnect(cls):
 
-        for mock_subscriber in cls.subscribers:
+        for mock_subscriber in cls.subscribers.values():
             mock_subscriber.unregister()
-        for mock_publisher in cls.publishers:
+        for mock_publisher in cls.publishers.values():
             mock_publisher.unregister()
-
-    @classmethod
-    def playFromBag(cls, block = True):
-
-        cls.bag_client.send_goal(cls.goal)
-        if block is True:
-            cls.bag_client.wait_for_result()
-
