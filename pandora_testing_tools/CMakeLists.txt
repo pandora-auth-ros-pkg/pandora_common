@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   rosbag
   message_generation
   actionlib_msgs
+  actionlib
   std_msgs
   map_server
   )
@@ -17,7 +18,7 @@ find_package(PkgConfig)
 pkg_check_modules(NEW_YAMLCPP yaml-cpp>=0.5)
 if(NEW_YAMLCPP_FOUND)
   add_definitions(-DHAVE_NEW_YAMLCPP)
-endif(NEW_YAMLCPP_FOUND)
+endif()
 
 catkin_python_setup()
 
@@ -32,23 +33,24 @@ generate_messages(
   )
 
 catkin_package(
-  DEPENDS
-  CATKIN-DEPENDS
+  #DEPENDS
+  CATKIN_DEPENDS
     message_runtime
     actionlib_msgs
+    actionlib
     std_msgs
   INCLUDE_DIRS
     include
   LIBRARIES
-    map_loader
+    ${PROJECT_NAME}_map_loader
   )
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_library(map_loader
+add_library(${PROJECT_NAME}_map_loader
   src/map_loader/map_loader.cpp
   )
-target_link_libraries(map_loader
+target_link_libraries(${PROJECT_NAME}_map_loader
   ${catkin_LIBRARIES}
   yaml-cpp
   )
