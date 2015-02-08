@@ -16,6 +16,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>python-argparse</depend>
+  <depend>python-yaml</depend>
 
   <export>
     <architecture_independent/>
