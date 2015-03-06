@@ -52,7 +52,8 @@ class VisionTestBase(test_base.TestBase):
         imageTypes = [".png", ".jpg", ".bmp"]
         bridge = CvBridge()
         if not os.path.isdir(imagePath):
-            print("ERROR : Incorrect Path")
+            print "ERROR : Incorrect Path"
+            exit(1)
 
         for fileName in os.listdir(imagePath):
             isImage = False
@@ -74,10 +75,11 @@ class VisionTestBase(test_base.TestBase):
                 print "The process will read the next image!"
                 continue
             # Store the image.
-            self.images.append(bridge.cv2_to_imgmsg(currentImg))
+            self.images.append(bridge.cv2_to_imgmsg(currentImg, "bgr8"))
+
+        print len(self.images)
 
     def accuracyTest(self, imagePath, inputTopic, outputTopic):
-
         rospy.loginfo("Reading Images")
         self.readImages(imagePath)
         rospy.logdebug("Now test publishing...")
