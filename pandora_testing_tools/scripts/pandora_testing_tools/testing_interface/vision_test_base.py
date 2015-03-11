@@ -85,12 +85,17 @@ class VisionTestBase(test_base.TestBase):
         rospy.logdebug("Now test publishing...")
         truePos = len(self.images)
         count = 0
+        bridge = CvBridge()
         for image in self.images:
             rospy.loginfo("Sending Image \n")
             self.mockPublish(inputTopic, outputTopic, image)
-
+            cv2.imshow("Image Message",bridge.imgmsg_to_cv2(image, "bgr8"))
+            cv2.waitKey(10)
+            rospy.sleep(1)
             if ((self.repliedList[outputTopic]) and
                (len(self.messageList[outputTopic]) == 1)):
                 count += 1
+                rospy.loginfo("Yo %d", count)
+                
 
         rospy.loginfo("Accuracy %f \n", count/float(truePos))

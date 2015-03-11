@@ -61,6 +61,7 @@ class TestBase(unittest.TestCase):
 
     def mockPublish(self, input_topic, output_topic, data):
         self.repliedList[output_topic] = False
+        self.messageList[output_topic] = []
         if not isinstance(data, self.publishedTypes[input_topic]):
             rospy.logerr("[mockPublish] Publishes wrong message type.")
         self.publishers[input_topic].publish(data)
