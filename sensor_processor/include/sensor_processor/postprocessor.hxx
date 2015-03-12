@@ -35,3 +35,31 @@
 * Authors:
 * 
 *********************************************************************/
+
+#include "sensor_processor/postprocessor.h"
+
+namespace sensor_processor
+{
+  template <class VisionOutput, class Publisher>
+  PostProcessor<VisionOutput, Publisher>::PostProcessor()
+  {
+    
+  }
+  
+  template <class VisionOutput, class Publisher>
+  PostProcessor<VisionOutput, Publisher>::~PostProcessor()
+  {
+  }
+  
+  template <class VisionOutput, class Publisher>
+  void PostProcessor<VisionOutput, Publisher>::setVisionOutput(const VisionOutput& input)
+  {
+    output_ = input;
+  }
+  
+  template <class VisionOutput, class Publisher>
+  void PostProcessor<VisionOutput, Publisher>::getPublisherResult(const PublisherPtr& result)
+  {
+    result.reset(&publisher_);
+  }
+}  // namespace sensor_processor

@@ -50,7 +50,6 @@ namespace sensor_processor
       virtual ~AbstractProcessor;
       
       void process() = 0;
-    
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_ABSTRACT_PROCESSOR_H

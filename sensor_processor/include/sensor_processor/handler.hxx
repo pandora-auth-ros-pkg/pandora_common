@@ -35,3 +35,28 @@
 * Authors:
 * 
 *********************************************************************/
+
+#include "sensor_processor/handler.h"
+
+namespace sensor_processor
+{
+  template <class Subscriber, class Publisher>
+  Handler<Subsciber, Publisher>::Handler()
+  {
+    
+  }
+  
+  template <class Subscriber, class Publisher>
+  Handler<Subsciber, Publisher>::~Handler()
+  {
+  }
+  
+  template <class Subscriber, class Publisher>
+  void Handler<Subsciber, Publisher>::completeMessageProcess()
+  {
+    preProcessor_.setSubscriberInput(&subscriber_);  // ?????????????????????????????
+    // preProcessor_.preProcess();
+    // processor_.setInput(????);
+    // ..................................???
+  }
+}  // namespace sensor_processor

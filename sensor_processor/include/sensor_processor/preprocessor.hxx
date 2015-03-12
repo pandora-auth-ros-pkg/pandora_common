@@ -36,24 +36,30 @@
 * 
 *********************************************************************/
 
-#include "sensor_processor/handler.h"
+#include "sensor_processor/preprocessor.h"
 
 namespace sensor_processor
 {
-  template <class Subscriber, class Publisher>
-  Handler<Subsciber, Publisher>::Handler()
+  template <class Subscriber, class VisionInput>
+  PreProcessor<Subscriber, VisionInput>::PreProcessor()
   {
     
   }
   
-  template <class Subscriber, class Publisher>
-  Handler<Subsciber, Publisher>::~Handler()
+  template <class Subscriber, class VisionInput>
+  PreProcessor<Subscriber, VisionInput>::~PreProcessor()
   {
   }
   
-  template <class Subscriber, class Publisher>
-  void Handler<Subsciber, Publisher>::completeMessageProcess()
+  template <class Subscriber, class VisionInput>
+  void PreProcessor<Subscriber, VisionInput>::setSubscriberInput(Subscriber& input)
   {
-    
+    subscriber_ = input;
+  }
+  
+  template <class Subscriber, class VisionInput>
+  PreProcessor<Subscriber, VisionInput>::getVisionResult(VisionInputPtr& result)
+  {
+    result.reset(&input_);
   }
 }  // namespace sensor_processor

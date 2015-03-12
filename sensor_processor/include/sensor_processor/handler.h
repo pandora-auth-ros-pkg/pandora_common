@@ -41,6 +41,8 @@
 
 #include <ros/ros.h>
 #include "sensor_processor/processor.h"
+#include "sensor_processor/preprocessor.h"
+#include "sensor_processor/postprocessor.h"
 
 namespace sensor_processor
 {
@@ -55,6 +57,8 @@ namespace sensor_processor
 
     private:
       Processor processor_;
+      PreProcessor preProcessor_;
+      PostProcessor postProcessor_;
       Subscriber subscriber_;
       Publisher publisher_;
   };

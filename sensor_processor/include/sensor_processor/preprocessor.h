@@ -40,6 +40,7 @@
 #define SENSOR_PROCESSOR_PREPROCESSOR_H
 
 #include <ros/ros.h>
+#include <boost/shared_ptr.hpp>
 
 namespace sensor_processor
 {
@@ -47,8 +48,13 @@ namespace sensor_processor
   class PreProcessor
   {
     public:
+      typedef boost::shared_ptr(VisionInput) VisionInputPtr;
+    
       PreProcessor();
       ~PreProcessor;
+      
+      void setSubscriberInput(const Subscriber& input);
+      void getVisionResult(const VisionInputPtr& result);
       
     private:
       Subscriber subscriber_;

@@ -40,6 +40,7 @@
 #define SENSOR_PROCESSOR_POSTPROCESSOR_H
 
 #include <ros/ros.h>
+#include <boost/shared_ptr.hpp>
 
 namespace sensor_processor
 {
@@ -47,8 +48,13 @@ namespace sensor_processor
   class PostProcessor
   {
     public:
+      typedef boost::shared_ptr(Publisher) PublisherPtr;
+      
       PostProcessor();
       ~PostProcessor;
+      
+      void setVisionOutput(const VisionOutput& input); 
+      void getPublisherResult(const PublisherPtr& result);
       
     private:
       VisionOutput output_;
