@@ -36,27 +36,31 @@
 * 
 *********************************************************************/
 
-#ifndef SENSOR_PROCESSOR_HANDLER_H
-#define SENSOR_PROCESSOR_HANDLER_H
+#ifndef SENSOR_PROCESSOR_PROCESSOR_H
+#define SENSOR_PROCESSOR_PROCESSOR_H
 
+#include <boost/shared_ptr.hpp>
 #include <ros/ros.h>
-#include "sensor_processor/processor.h"
+#include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
 {
-  template <class Subscriber, class Publisher>
-  class Handler
+  template <class VisionInput, class VisionOutput>
+  class Processor: public AbstractProcessor
   {
     public:
-      Handler();
-      ~Handler();
       
-      void completeMessageProcess();
-
+      typedef boost::shared_ptr<VisionOutput> VisionOutputPtr;
+      
+      Processor();
+      virtual ~Processor;
+      
+      void setInput(const VisionInput& input);
+      void getResult(const VisionOutputPtr& output);
+      
     private:
-      Processor processor_;
-      Subscriber subscriber_;
-      Publisher publisher_;
+      VisionInput input_;
+      VisionOutput output_;
   };
 }  // namespace sensor_processor
-#endif  // SENSOR_PROCESSOR_HANDLER_H
+#endif  // SENSOR_PROCESSOR_PROCESSOR_H

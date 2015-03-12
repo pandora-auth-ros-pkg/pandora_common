@@ -36,27 +36,30 @@
 * 
 *********************************************************************/
 
-#ifndef SENSOR_PROCESSOR_HANDLER_H
-#define SENSOR_PROCESSOR_HANDLER_H
-
-#include <ros/ros.h>
 #include "sensor_processor/processor.h"
 
 namespace sensor_processor
 {
-  template <class Subscriber, class Publisher>
-  class Handler
+  template <class VisionInput, class VisionOutput>
+  Processor<VisionInput, VisionOutput>::Processor()
   {
-    public:
-      Handler();
-      ~Handler();
-      
-      void completeMessageProcess();
-
-    private:
-      Processor processor_;
-      Subscriber subscriber_;
-      Publisher publisher_;
-  };
+    
+  }
+  
+  template <class VisionInput, class VisionOutput>
+  Processor<VisionInput, VisionOutput>::~Processor()
+  {
+  }
+  
+  template <class VisionInput, class VisionOutput>
+  void Processor<VisionInput, VisionOutput>::setInput(const VisionInput& input)
+  {
+    input_ = input;
+  }
+  
+  template <class VisionInput, class VisionOutput>
+  void Processor<VisionInput, VisionOutput>::getResult(const VisionOutputPtr& output)
+  {
+    output.reset(&output_);
+  }
 }  // namespace sensor_processor
-#endif  // SENSOR_PROCESSOR_HANDLER_H

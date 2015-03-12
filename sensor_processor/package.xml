@@ -13,8 +13,13 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>roscpp</depend>
-  <depend>state_manager</depend>
+  <build_depend>roscpp</build_depend> 
+  <build_depend>state_manager</build_depend>
+  <build_depend>state_manager_communications</build_depend>
+  
+  <run_depend>roscpp</run_depend>
+  <run_depend>state_manager</run_depend>
+  <run_depend>state_manager_communications</run_depend>
 
   <export>
   </export>

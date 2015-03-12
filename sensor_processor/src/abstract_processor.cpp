@@ -36,27 +36,19 @@
 * 
 *********************************************************************/
 
-#ifndef SENSOR_PROCESSOR_HANDLER_H
-#define SENSOR_PROCESSOR_HANDLER_H
-
-#include <ros/ros.h>
-#include "sensor_processor/processor.h"
+#include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
 {
-  template <class Subscriber, class Publisher>
-  class Handler
+  AbstractProcessor::AbstractProcessor()
   {
-    public:
-      Handler();
-      ~Handler();
-      
-      void completeMessageProcess();
-
-    private:
-      Processor processor_;
-      Subscriber subscriber_;
-      Publisher publisher_;
-  };
+    
+  }
+  
+  AbstractProcessor::~AbstractProcessor()
+  {
+    
+  }
 }  // namespace sensor_processor
-#endif  // SENSOR_PROCESSOR_HANDLER_H
+
+
