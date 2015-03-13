@@ -46,21 +46,24 @@
 
 namespace sensor_processor
 {
-  template <class Subscriber, class Publisher>
+  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
   class Handler
   {
     public:
       Handler();
       ~Handler();
       
-      void completeMessageProcess();
+      void completeProcessCallback();
 
     private:
       Processor processor_;
       PreProcessor preProcessor_;
       PostProcessor postProcessor_;
-      Subscriber subscriber_;
-      Publisher publisher_;
+      SubscribedType subscribedType_;
+      PublishedType publishedType_;
+      
+      ros::Publisher publisher_;
+      ros::Subscriber subscriber_;
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_HANDLER_H

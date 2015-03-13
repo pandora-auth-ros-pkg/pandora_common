@@ -40,23 +40,36 @@
 
 namespace sensor_processor
 {
-  template <class Subscriber, class Publisher>
-  Handler<Subsciber, Publisher>::Handler()
+  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
+  Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::Handler()
   {
+    // subscribe
+  }
+  
+  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
+  Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::~Handler()
+  {
+  }
+  
+  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
+  void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::completeProcessCallback()
+  {
+    preProcessor_.setSubscriberInput(&subscribedType_);
+    preProcessor_.preProcess();
     
-  }
-  
-  template <class Subscriber, class Publisher>
-  Handler<Subsciber, Publisher>::~Handler()
-  {
-  }
-  
-  template <class Subscriber, class Publisher>
-  void Handler<Subsciber, Publisher>::completeMessageProcess()
-  {
-    preProcessor_.setSubscriberInput(&subscriber_);  // ?????????????????????????????
-    // preProcessor_.preProcess();
-    // processor_.setInput(????);
-    // ..................................???
+    VisionInputPtr visionInput(new VisionInput);
+    preProcessor_.getVisionResult(visionInput);
+    
+    processor_.setInput(*visionInput);
+    processor_.process();
+    
+    VisionOutputPtr visionOutput(new VisionOutput);
+    processor_.getResult(visionOutput);
+    
+    postProcessor_.setVisionOutput(*visionOutput);
+    postProcessor_.postProcess();
+    postProcessor_.getPublisherResult(&publishedType_);
+    
+    // publish
   }
 }  // namespace sensor_processor

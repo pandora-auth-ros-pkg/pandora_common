@@ -44,7 +44,7 @@
 
 namespace sensor_processor
 {
-  template <class Subscriber, class VisionInput>
+  template <class SubscribedType, class VisionInput>
   class PreProcessor
   {
     public:
@@ -53,11 +53,13 @@ namespace sensor_processor
       PreProcessor();
       ~PreProcessor;
       
-      void setSubscriberInput(const Subscriber& input);
+      void setSubscriberInput(const SubscribedType& input);
       void getVisionResult(const VisionInputPtr& result);
       
+      void preProcess();
+      
     private:
-      Subscriber subscriber_;
+      SubscribedType subscribedType_;
       VisionInput input_;
   };
 }  // namespace sensor_processor

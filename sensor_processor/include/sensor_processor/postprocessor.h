@@ -44,21 +44,23 @@
 
 namespace sensor_processor
 {
-  template <class VisionOutput, Publisher>
+  template <class VisionOutput, PublishedType>
   class PostProcessor
   {
     public:
-      typedef boost::shared_ptr(Publisher) PublisherPtr;
+      typedef boost::shared_ptr(PublishedType) PublishedTypePtr;
       
       PostProcessor();
       ~PostProcessor;
       
       void setVisionOutput(const VisionOutput& input); 
-      void getPublisherResult(const PublisherPtr& result);
+      void getPublisherResult(const PublishedTypePtr& result);
+      
+      void postProcess();
       
     private:
       VisionOutput output_;
-      Publisher publisher_;
+      PublishedType publishedType_;
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_POSTPROCESSOR_H
