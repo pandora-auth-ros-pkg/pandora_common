@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-* Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+* Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@
 #define SENSOR_PROCESSOR_PROCESSOR_H
 
 #include <boost/shared_ptr.hpp>
-#include <ros/ros.h>
 #include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
@@ -49,7 +48,6 @@ namespace sensor_processor
   class Processor: public AbstractProcessor
   {
     public:
-      
       typedef boost::shared_ptr<VisionOutput> VisionOutputPtr;
       
       Processor();

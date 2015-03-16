@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-* Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+* Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,10 @@ namespace sensor_processor
   class PostProcessor
   {
     public:
-      typedef boost::shared_ptr(PublishedType) PublishedTypePtr;
+      typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
+      typedef boost::shared_ptr<PublishedType> PublishedTypePtr;
       
-      PostProcessor();
+      explicit PostProcessor(NodeHandlePtr nhPtr);
       ~PostProcessor;
       
       void setVisionOutput(const VisionOutput& input); 
@@ -59,6 +60,10 @@ namespace sensor_processor
       void postProcess();
       
     private:
+      ros::NodeHandle nh_;
+      ros::Publisher publisher_;
+      std::string publisherTopic_;
+      
       VisionOutput output_;
       PublishedType publishedType_;
   };

@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-* Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+* Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,26 +40,53 @@
 
 namespace sensor_processor
 {
-  template <class VisionOutput, class Publisher>
-  PostProcessor<VisionOutput, Publisher>::PostProcessor()
+  template <class VisionOutput, class PublishedType>
+  PostProcessor<VisionOutput, PublishedType>::PostProcessor(NodeHandlePtr nhPtr)
   {
+    nh_ = *nhPtr;
+    getTopicName();
+    publisher_ = nh_.advertise<PublishedType>(publisherTopic_, 1);
     
+    ROS_INFO_NAMED(PKG_NAME, "[PostProcessor] Initialized");
   }
   
-  template <class VisionOutput, class Publisher>
-  PostProcessor<VisionOutput, Publisher>::~PostProcessor()
+  template <class VisionOutput, class PublishedType>
+  PostProcessor<VisionOutput, PublishedType>::~PostProcessor()
   {
   }
   
-  template <class VisionOutput, class Publisher>
-  void PostProcessor<VisionOutput, Publisher>::setVisionOutput(const VisionOutput& input)
+  template <class VisionOutput, class PublishedType>
+  void PostProcessor<VisionOutput, PublishedType>::getTopicName()
+  {
+    std::string ns = nodeHandle_.getNamespace();
+
+    if (nh_.getParam(ns + "/published_topic", publisherTopic_))
+    {
+      publisherTopic_ = ns + "/" + publisherTopic_;
+      ROS_INFO_NAMED(PKG_NAME, "[PostProcessor] Published to topic");
+    }
+    else
+    {
+      ROS_INFO_NAMED (PKG_NAME, "[PostProcessor] Could not find topic to publish to");
+    }
+  }
+  
+  template <class VisionOutput, class PublishedType>
+  void PostProcessor<VisionOutput, PublishedType>::setVisionOutput(const VisionOutput& input)
   {
     output_ = input;
   }
   
-  template <class VisionOutput, class Publisher>
-  void PostProcessor<VisionOutput, Publisher>::getPublisherResult(const PublisherPtr& result)
+  template <class VisionOutput, class PublishedType>
+  void PostProcessor<VisionOutput, PublishedType>::getPublisherResult(const PublishedTypePtr& result)
   {
-    result.reset(&publisher_);
+    result.reset(&publishedType_);
+    publisher_.publish(publishedType_);
+  }
+  
+  template <class VisionOutput, class PublishedType>
+  void PostProcessor<VisionOutput, PublishedType>::postProcess()
+  {
+    
   }
 }  // namespace sensor_processor

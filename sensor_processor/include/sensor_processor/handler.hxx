@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-* Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+* Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,35 +41,50 @@
 namespace sensor_processor
 {
   template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
-  Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::Handler()
+  Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::Handler(): 
+    preProcessor_(nhPtr_(new ros::NodeHandle("")), &Handler<SubscibedType, VisionInput, VisionOutput, 
+    PublishedType>::completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr)), 
+    postProcessor_(nhPtr_)
   {
-    // subscribe
+    ROS_INFO_NAMED(PKG_NAME, "[Handler] Initialized");
   }
   
   template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
   Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::~Handler()
   {
+    ROS_INFO_NAMED(PKG_NAME, "[Handler] Terminated");
   }
   
   template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
-  void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::completeProcessCallback()
+  void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::completeProcessCallback(const 
+    SubscribedTypePtr& subscribedTypePtr)
   {
+    subscribedType_ = *subscibedTypePtr;
+    
     preProcessor_.setSubscriberInput(&subscribedType_);
     preProcessor_.preProcess();
-    
     VisionInputPtr visionInput(new VisionInput);
     preProcessor_.getVisionResult(visionInput);
     
     processor_.setInput(*visionInput);
     processor_.process();
-    
     VisionOutputPtr visionOutput(new VisionOutput);
     processor_.getResult(visionOutput);
     
     postProcessor_.setVisionOutput(*visionOutput);
     postProcessor_.postProcess();
     postProcessor_.getPublisherResult(&publishedType_);
+  }
+  
+  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
+  void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::startTransition(int newState)
+  {
     
-    // publish
+  }
+  
+  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
+  void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::completeTransition()
+  {
+    ROS_INFO("[Sensor Processor] : Transition Complete");
   }
 }  // namespace sensor_processor

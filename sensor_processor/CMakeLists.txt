@@ -18,6 +18,11 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 
 # add libraries, dependencies and links to them
 
+add_library(abstract_processor src/abstract_processor.cpp)
+target_link_libraries(abstract_processor
+  ${catkin_LIBRARIES}
+  )
+
 # add executables, dependencies and links to them
 
 # add roslint

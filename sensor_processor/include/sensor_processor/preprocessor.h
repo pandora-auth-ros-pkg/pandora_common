@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-* Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+* Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,11 @@ namespace sensor_processor
   class PreProcessor
   {
     public:
-      typedef boost::shared_ptr(VisionInput) VisionInputPtr;
+      typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
+      typedef boost::shared_ptr<VisionInput> VisionInputPtr;
+      typedef boost::shared_ptr<SubscribedType> SubscribedTypePtr;
     
-      PreProcessor();
+      PreProcessor(NodeHandlePtr nhPtr, void (*callback)(const SubscribedTypePtr& subscribedTypePtr));
       ~PreProcessor;
       
       void setSubscriberInput(const SubscribedType& input);
@@ -59,6 +61,10 @@ namespace sensor_processor
       void preProcess();
       
     private:
+      ros::NodeHandle nh_;
+      ros::Subscriber subscriber_;
+      std::string subscriberTopic_;
+      
       SubscribedType subscribedType_;
       VisionInput input_;
   };

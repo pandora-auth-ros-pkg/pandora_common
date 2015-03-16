@@ -2,7 +2,7 @@
 *
 * Software License Agreement (BSD License)
 *
-* Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+* Copyright (c) 2015, P.A.N.D.O.R.A. Team.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@
 #define SENSOR_PROCESSOR_HANDLER_H
 
 #include <ros/ros.h>
+#include "state_manager/state_client.h"
 #include "sensor_processor/processor.h"
 #include "sensor_processor/preprocessor.h"
 #include "sensor_processor/postprocessor.h"
@@ -47,23 +48,25 @@
 namespace sensor_processor
 {
   template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
-  class Handler
+  class Handler: public StateClient
   {
     public:
       Handler();
       ~Handler();
       
-      void completeProcessCallback();
+      void completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr);
 
     private:
+      NodeHandlePtr nhPtr_;
+
       Processor processor_;
       PreProcessor preProcessor_;
       PostProcessor postProcessor_;
       SubscribedType subscribedType_;
       PublishedType publishedType_;
       
-      ros::Publisher publisher_;
-      ros::Subscriber subscriber_;
+      void startTransition(int newState);
+      void completeTransition();
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_HANDLER_H
