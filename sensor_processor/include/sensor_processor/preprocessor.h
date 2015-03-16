@@ -39,8 +39,8 @@
 #ifndef SENSOR_PROCESSOR_PREPROCESSOR_H
 #define SENSOR_PROCESSOR_PREPROCESSOR_H
 
-#include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
+#include <ros/ros.h>
 
 namespace sensor_processor
 {
@@ -58,15 +58,17 @@ namespace sensor_processor
       void setSubscriberInput(const SubscribedType& input);
       void getVisionResult(const VisionInputPtr& result);
       
-      void preProcess();
+      void preProcess() = 0;
       
-    private:
+    protected:
       ros::NodeHandle nh_;
       ros::Subscriber subscriber_;
       std::string subscriberTopic_;
       
       SubscribedType subscribedType_;
       VisionInput input_;
+      
+      void getTopicName();
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_PREPROCESSOR_H

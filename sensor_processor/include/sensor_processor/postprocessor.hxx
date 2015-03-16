@@ -83,10 +83,4 @@ namespace sensor_processor
     result.reset(&publishedType_);
     publisher_.publish(publishedType_);
   }
-  
-  template <class VisionOutput, class PublishedType>
-  void PostProcessor<VisionOutput, PublishedType>::postProcess()
-  {
-    
-  }
 }  // namespace sensor_processor

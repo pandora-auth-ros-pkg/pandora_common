@@ -65,6 +65,10 @@ namespace sensor_processor
       SubscribedType subscribedType_;
       PublishedType publishedType_;
       
+      bool nodeNowOn_;
+      int currentState_;
+      int previousState_;
+      
       void startTransition(int newState);
       void completeTransition();
   };

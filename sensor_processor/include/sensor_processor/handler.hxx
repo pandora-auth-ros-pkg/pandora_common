@@ -46,6 +46,13 @@ namespace sensor_processor
     PublishedType>::completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr)), 
     postProcessor_(nhPtr_)
   {
+    currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
+    previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
+    
+    clientInitialize();
+    
+    nodeNowOn_ = false;
+    
     ROS_INFO_NAMED(PKG_NAME, "[Handler] Initialized");
   }
   
@@ -79,7 +86,17 @@ namespace sensor_processor
   template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
   void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::startTransition(int newState)
   {
+    currentState_ = newState;
     
+    // stuff................
+    
+    if (currentState_ == state_manager_msgs::RobotModeMsg::MODE_TERMINATING))
+    {
+      ros::shutdown();
+      return;
+    }
+    previousState_ = currentState_;
+    transitionComplete(currentState_);
   }
   
   template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>

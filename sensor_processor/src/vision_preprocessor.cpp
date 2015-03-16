@@ -36,51 +36,37 @@
 * 
 *********************************************************************/
 
-#include "sensor_processor/preprocessor.h"
+#include "sensor_processor/vision_preprocessor.h"
 
 namespace sensor_processor
 {
-  template <class SubscribedType, class VisionInput>
-  PreProcessor<SubscribedType, VisionInput>::PreProcessor(NodeHandlePtr nhPtr, 
+  VisionPreProcessor::VisionPreProcessor(NodeHandlePtr nhPtr, 
     void (*callback)(const SubscribedTypePtr& subscribedTypePtr))
   {
-    nh_ = *nhPtr;
-    getTopicName();
-
-    subscriber_ = nh_.subscribe(subscriberTopic_, 1, callback, this);
+    parentFrameId_ = "";
+    frameId_ = "";
+    
+    //getParam...............?
+    
+    ROS_INFO_NAMED(PKG_NAME, "[VisionPreProcessor] Initialized");  // for each vision node..............
   }
   
-  template <class SubscribedType, class VisionInput>
-  PreProcessor<SubscribedType, VisionInput>::~PreProcessor()
+  template<class Type>
+  void VisionPreProcessor::getParameter(const std::string& name, const Type& param)
   {
-  }
-  
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::getTopicName()
-  {
-    std::string ns = nodeHandle_.getNamespace();
-
-    if (nh_.getParam(ns + "/subscribed_topic", subscriberTopic_))
+    if (nh_.getParam(name, param))
     {
-      subscriberTopic_ = ns + "/" + subscriberTopic_;
-      ROS_INFO_NAMED(PKG_NAME, "[PreProcessor] Subscribed to topic");
+      ROS_DEBUG_STREAM(name << " : " << param);
     }
     else
     {
-      ROS_INFO_NAMED(PKG_NAME, "[PreProcessor] Could not find topic to subscribe to");
+      ROS_FATAL("[Node] : Parameter " << name << " not found. Using Default");
       ROS_BREAK();
     }
   }
 
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::setSubscriberInput(const SubscribedType& input)
+  bool VisionPreProcessor::getParentFrameId()
   {
-    subscribedType_ = input;
-  }
-  
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::getVisionResult(const VisionInputPtr& result)
-  {
-    result.reset(&input_);
+    
   }
 }  // namespace sensor_processor

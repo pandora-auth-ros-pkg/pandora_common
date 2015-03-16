@@ -57,7 +57,7 @@ namespace sensor_processor
       void setVisionOutput(const VisionOutput& input); 
       void getPublisherResult(const PublishedTypePtr& result);
       
-      void postProcess();
+      void postProcess() = 0;
       
     private:
       ros::NodeHandle nh_;

@@ -36,51 +36,39 @@
 * 
 *********************************************************************/
 
+#ifndef SENSOR_PROCESSOR_VISION_PREPROCESSOR_H
+#define SENSOR_PROCESSOR_VISION_PREPROCESSOR_H
+
+#include <opencv2/opencv.hpp>
+#include "sensor_msgs/Image.h"
 #include "sensor_processor/preprocessor.h"
 
 namespace sensor_processor
 {
-  template <class SubscribedType, class VisionInput>
-  PreProcessor<SubscribedType, VisionInput>::PreProcessor(NodeHandlePtr nhPtr, 
-    void (*callback)(const SubscribedTypePtr& subscribedTypePtr))
+  class VisionPreProcessor: public PreProcessor<sensor_msgs::Image, cv::Mat>
   {
-    nh_ = *nhPtr;
-    getTopicName();
-
-    subscriber_ = nh_.subscribe(subscriberTopic_, 1, callback, this);
-  }
-  
-  template <class SubscribedType, class VisionInput>
-  PreProcessor<SubscribedType, VisionInput>::~PreProcessor()
-  {
-  }
-  
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::getTopicName()
-  {
-    std::string ns = nodeHandle_.getNamespace();
-
-    if (nh_.getParam(ns + "/subscribed_topic", subscriberTopic_))
-    {
-      subscriberTopic_ = ns + "/" + subscriberTopic_;
-      ROS_INFO_NAMED(PKG_NAME, "[PreProcessor] Subscribed to topic");
-    }
-    else
-    {
-      ROS_INFO_NAMED(PKG_NAME, "[PreProcessor] Could not find topic to subscribe to");
-      ROS_BREAK();
-    }
-  }
-
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::setSubscriberInput(const SubscribedType& input)
-  {
-    subscribedType_ = input;
-  }
-  
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::getVisionResult(const VisionInputPtr& result)
-  {
-    result.reset(&input_);
-  }
+    public:
+      VisionPreProcessor(NodeHandlePtr nhPtr, void (*callback)(const SubscribedTypePtr& subscribedTypePtr));
+      virtual ~VisionPreProcessor();
+      
+    private:
+      double hfov_;
+      double vfov_;
+      
+      int frameWidth_;
+      int frameHeight_;
+      
+      int cameraIndicator_;
+      cv::Mat nodeFrame_;
+      
+      ros::Time nodeFrameTimestamp_;
+      
+      std::string cameraName_;
+      std::string parentFrameId_;
+      std::string frameId_;
+      
+      bool getParentFrameId();
+      template<class Type> void getParameter(const std::string& name, const Type& param);
+  };
 }  // namespace sensor_processor
+#endif  // SENSOR_PROCESSOR_VISION_PREPROCESSOR_H
