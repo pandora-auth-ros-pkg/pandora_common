@@ -22,6 +22,16 @@ add_library(abstract_processor src/abstract_processor.cpp)
 target_link_libraries(abstract_processor
   ${catkin_LIBRARIES}
   )
+  
+add_library(vision_preprocessor src/vision_preprocessor.cpp)
+target_link_libraries(vision_preprocessor
+  ${catkin_LIBRARIES}
+  )
+  
+add_library(vision_postprocessor src/vision_postprocessor.cpp)
+target_link_libraries(vision_postprocessor
+  ${catkin_LIBRARIES}
+  )
 
 # add executables, dependencies and links to them
 

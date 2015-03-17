@@ -36,19 +36,21 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#include "sensor_processor/abstract_processor.h"
+#ifndef SENSOR_PROCESSOR_VISION_HANDLER_H
+#define SENSOR_PROCESSOR_VISION_HANDLER_H
+
+#include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
-  AbstractProcessor::AbstractProcessor()
+  class VisionHandler: Handler<>
   {
-    
-  }
-  
-  AbstractProcessor::~AbstractProcessor()
-  {
-    
-  }
-}  // namespace sensor_processor
-
-
+    public:
+      VisionHandler();
+      ~VisionHandler();
+      
+    private:
+      
+  };
+}
+#endif  // SENSOR_PROCESSOR_HANDLER_H

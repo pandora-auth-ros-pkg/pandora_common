@@ -33,7 +33,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 * Authors:
-* 
+* Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
 #ifndef SENSOR_PROCESSOR_HANDLER_H
@@ -56,7 +56,7 @@ namespace sensor_processor
       
       void completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr);
 
-    private:
+    protected:
       NodeHandlePtr nhPtr_;
 
       Processor processor_;
@@ -69,7 +69,7 @@ namespace sensor_processor
       int currentState_;
       int previousState_;
       
-      void startTransition(int newState);
+      void startTransition(int newState) = 0;
       void completeTransition();
   };
 }  // namespace sensor_processor

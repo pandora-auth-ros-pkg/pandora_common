@@ -33,7 +33,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 * Authors:
-* 
+* Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
 #ifndef SENSOR_PROCESSOR_POSTPROCESSOR_H
@@ -59,7 +59,7 @@ namespace sensor_processor
       
       void postProcess() = 0;
       
-    private:
+    protected:
       ros::NodeHandle nh_;
       ros::Publisher publisher_;
       std::string publisherTopic_;

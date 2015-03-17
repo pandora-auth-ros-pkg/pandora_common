@@ -36,19 +36,33 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#include "sensor_processor/abstract_processor.h"
+#include "sensor_processor/vision_postprocessor.h"
 
 namespace sensor_processor
 {
-  AbstractProcessor::AbstractProcessor()
+  template <class PublishedMessageType>
+  VisionPostProcessor<PublishedMessageType>::VisionPostProcessor(NodeHandlePtr nhPtr): PostProcessor(nhPtr)
   {
     
   }
   
-  AbstractProcessor::~AbstractProcessor()
+  template <class PublishedMessageType>
+  VisionPostProcessor<PublishedMessageType>::~VisionPostProcessor()
   {
+  }
+  
+  template <class PublishedMessageType>
+  void VisionPostProcessor<PublishedMessageType>::findAnglesOfRotation()
+  {
+    for (int ii = 0; ii < output_.size(); i++)
+    {
+      float x = output_[i].x - static_cast<float>(frameWidth_) / 2;
+      float y = static_cast<float>(frameHeight_) / 2 - output_[i].y;
+      
+      yaw_[i] = atan(2 * x / frameWidth_ * tan(hfov / 2));
+      pitch_[i] = atan(2 * y / frameHeight_ * tan(vfov / 2));
+    }
+    
     
   }
 }  // namespace sensor_processor
-
-

@@ -33,7 +33,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 * Authors:
-* 
+* Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
 #include "sensor_processor/handler.h"
@@ -81,22 +81,6 @@ namespace sensor_processor
     postProcessor_.setVisionOutput(*visionOutput);
     postProcessor_.postProcess();
     postProcessor_.getPublisherResult(&publishedType_);
-  }
-  
-  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
-  void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::startTransition(int newState)
-  {
-    currentState_ = newState;
-    
-    // stuff................
-    
-    if (currentState_ == state_manager_msgs::RobotModeMsg::MODE_TERMINATING))
-    {
-      ros::shutdown();
-      return;
-    }
-    previousState_ = currentState_;
-    transitionComplete(currentState_);
   }
   
   template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>

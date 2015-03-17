@@ -33,7 +33,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 * Authors:
-* 
+* Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
 #include "sensor_processor/processor.h"

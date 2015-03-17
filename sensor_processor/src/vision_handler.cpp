@@ -36,19 +36,31 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#include "sensor_processor/abstract_processor.h"
+#include "sensor_processor/vision_handler.h"
 
 namespace sensor_processor
 {
-  AbstractProcessor::AbstractProcessor()
+  VisionHandler::VisionHandler()
   {
     
   }
   
-  AbstractProcessor::~AbstractProcessor()
+  VisionHandler::~VisionHandler()
   {
-    
   }
-}  // namespace sensor_processor
-
-
+  
+  VisionHandler::startTransaction(int newState)
+  {
+    currentState_ = newState;
+    
+    // stuff................
+    
+    if (currentState_ == state_manager_msgs::RobotModeMsg::MODE_TERMINATING))
+    {
+      ros::shutdown();
+      return;
+    }
+    previousState_ = currentState_;
+    transitionComplete(currentState_);
+  }
+}

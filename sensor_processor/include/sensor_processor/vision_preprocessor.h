@@ -33,14 +33,15 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 * Authors:
-* 
+* Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
 #ifndef SENSOR_PROCESSOR_VISION_PREPROCESSOR_H
 #define SENSOR_PROCESSOR_VISION_PREPROCESSOR_H
 
 #include <opencv2/opencv.hpp>
-#include "sensor_msgs/Image.h"
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/Image.h>
 #include "sensor_processor/preprocessor.h"
 
 namespace sensor_processor
@@ -52,14 +53,12 @@ namespace sensor_processor
       virtual ~VisionPreProcessor();
       
     private:
-      double hfov_;
+      double hfov_;  // caps?
       double vfov_;
       
       int frameWidth_;
       int frameHeight_;
-      
       int cameraIndicator_;
-      cv::Mat nodeFrame_;
       
       ros::Time nodeFrameTimestamp_;
       

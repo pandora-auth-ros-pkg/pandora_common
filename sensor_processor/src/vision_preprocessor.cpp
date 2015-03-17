@@ -33,7 +33,7 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 * Authors:
-* 
+* Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
 #include "sensor_processor/vision_preprocessor.h"
@@ -41,7 +41,7 @@
 namespace sensor_processor
 {
   VisionPreProcessor::VisionPreProcessor(NodeHandlePtr nhPtr, 
-    void (*callback)(const SubscribedTypePtr& subscribedTypePtr))
+    void (*callback)(const SubscribedTypePtr& subscribedTypePtr)): PreProcessor(nhPtr, callback)
   {
     parentFrameId_ = "";
     frameId_ = "";
@@ -49,6 +49,10 @@ namespace sensor_processor
     //getParam...............?
     
     ROS_INFO_NAMED(PKG_NAME, "[VisionPreProcessor] Initialized");  // for each vision node..............
+  }
+  
+  VisionPreProcessor::~VisionPreProcessor()
+  {
   }
   
   template<class Type>
@@ -68,5 +72,29 @@ namespace sensor_processor
   bool VisionPreProcessor::getParentFrameId()
   {
     
+  }
+  
+  void VisionPreProcessor::preProcess()
+  {
+    cv_bridge::CvImagePtr inMsg;
+    inMsg = cv_bridge::toCvCopy(subscribedType_, sensor_msgs::image_encodings::BGR8);
+    input_ = inMsg->image.clone();
+    nodeFrameTimestamp_ = subscribedType_.header.stamp;
+    frameId_ = subscribedType_.header.frame_id;
+    frameWidth_ = subscribedType_.width;  // uint32
+    frameHeight_ = subscribedType_.height;
+    
+    if (frameId_[0] == '/')  // ??????????
+    {
+      frameId_ = frameId_.substr(1);
+      cameraIndicator_ = 1;
+    }
+    
+    if (input_.empty())
+    {
+      ROS_ERROR("[Node] No more Frames or something went wrong with bag file");
+      // ros::shutdown();
+      return;
+    }
   }
 }  // namespace sensor_processor
