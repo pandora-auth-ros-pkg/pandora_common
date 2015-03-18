@@ -46,7 +46,9 @@ namespace sensor_processor
     parentFrameId_ = "";
     frameId_ = "";
     
-    //getParam...............?
+    getGeneralParameters();
+    
+    //........
     
     ROS_INFO_NAMED(PKG_NAME, "[VisionPreProcessor] Initialized");  // for each vision node..............
   }
@@ -55,40 +57,11 @@ namespace sensor_processor
   {
   }
   
-  template<class Type>
-  void VisionPreProcessor::getParameter(const std::string& name, const Type& param)
-  {
-    if (nh_.getParam(name, param))
-    {
-      ROS_DEBUG_STREAM(name << " : " << param);
-    }
-    else
-    {
-      ROS_FATAL("[Node] : Parameter " << name << " not found. Using Default");
-      ROS_BREAK();
-    }
-  }
-
-  bool VisionPreProcessor::getParentFrameId()
-  {
-    
-  }
-  
   void VisionPreProcessor::preProcess()
   {
     cv_bridge::CvImagePtr inMsg;
     inMsg = cv_bridge::toCvCopy(subscribedType_, sensor_msgs::image_encodings::BGR8);
     input_ = inMsg->image.clone();
-    nodeFrameTimestamp_ = subscribedType_.header.stamp;
-    frameId_ = subscribedType_.header.frame_id;
-    frameWidth_ = subscribedType_.width;  // uint32
-    frameHeight_ = subscribedType_.height;
-    
-    if (frameId_[0] == '/')  // ??????????
-    {
-      frameId_ = frameId_.substr(1);
-      cameraIndicator_ = 1;
-    }
     
     if (input_.empty())
     {

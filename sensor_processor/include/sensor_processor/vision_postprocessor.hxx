@@ -41,9 +41,9 @@
 namespace sensor_processor
 {
   template <class PublishedMessageType>
-  VisionPostProcessor<PublishedMessageType>::VisionPostProcessor(NodeHandlePtr nhPtr): PostProcessor(nhPtr)
+  VisionPostProcessor<PublishedMessageType>::VisionPostProcessor(NodeHandlePtr nhPtr, StringPtr frameId): 
+    PostProcessor(nhPtr), frameId_(frameId), nodeFrameTimestamp_(time)
   {
-    
   }
   
   template <class PublishedMessageType>
@@ -52,16 +52,47 @@ namespace sensor_processor
   }
   
   template <class PublishedMessageType>
+  template<class Type> void VisionPostProcessor<PublishedMessageType>::getParameter(const std::string& name, 
+    const Type& param)
+  {
+    if (nh_.getParam(name, param))
+    {
+      ROS_DEBUG_STREAM(name << " : " << param);
+    }
+    else
+    {
+      ROS_FATAL("[Node] : Parameter " << name << " not found. Using Default");
+      ROS_BREAK();
+    }
+  }
+  
+  template <class PublishedMessageType>
+  bool VisionPostProcessor<PublishedMessageType>::getParentFrameId()
+  {
+    
+  }
+  
+  template <class PublishedMessageType>
+  void VisionPostProcessor<PublishedMessageType>::getGeneralParameters()
+  {
+    getParameter<int>("image_width", frameWidth_);
+    getParameter<int>("image_height", frameHeight_);
+    getParameter<double>("hfov", hfov_);
+    getParameter<double>("vfov", vfov_);
+    // .........
+  }
+  
+  template <class PublishedMessageType>
   void VisionPostProcessor<PublishedMessageType>::findAnglesOfRotation()
   {
-    for (int ii = 0; ii < output_.size(); i++)
-    {
-      float x = output_[i].x - static_cast<float>(frameWidth_) / 2;
-      float y = static_cast<float>(frameHeight_) / 2 - output_[i].y;
-      
-      yaw_[i] = atan(2 * x / frameWidth_ * tan(hfov / 2));
-      pitch_[i] = atan(2 * y / frameHeight_ * tan(vfov / 2));
-    }
+    //~ for (int ii = 0; ii < output_.size(); i++)
+    //~ {
+      //~ float x = output_[i].x - static_cast<float>(frameWidth_) / 2;
+      //~ float y = static_cast<float>(frameHeight_) / 2 - output_[i].y;
+      //~ 
+      //~ yaw_[i] = atan(2 * x / frameWidth_ * tan(hfov / 2));
+      //~ pitch_[i] = atan(2 * y / frameHeight_ * tan(vfov / 2));
+    //~ }
     
     
   }

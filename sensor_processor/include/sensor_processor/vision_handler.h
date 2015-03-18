@@ -39,18 +39,26 @@
 #ifndef SENSOR_PROCESSOR_VISION_HANDLER_H
 #define SENSOR_PROCESSOR_VISION_HANDLER_H
 
+#include <opencv2/opencv.hpp>
+#include <sensor_msgs/Image.h>
+#inlude "pandora_common_msgs/GeneralAlertMsg.h"
 #include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
-  class VisionHandler: Handler<>
+  class VisionHandler: Handler<sensor_msgs::Image, cv::Mat, std::vector<cv::Points>, 
+    pandora_common_msgs::GeneralAlertMsg>
   {
     public:
+      typedef boost::shared_ptr<std::string> StringPtr;
+      typedef boost::shared_ptr<ros::Time> TimePtr;
+      
       VisionHandler();
       ~VisionHandler();
       
     private:
-      
+      StringPtr frameId_;
+      TimePtr nodeFrameTimestamp_;
   };
 }
 #endif  // SENSOR_PROCESSOR_HANDLER_H

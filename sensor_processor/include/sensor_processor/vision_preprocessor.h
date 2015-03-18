@@ -51,23 +51,6 @@ namespace sensor_processor
     public:
       VisionPreProcessor(NodeHandlePtr nhPtr, void (*callback)(const SubscribedTypePtr& subscribedTypePtr));
       virtual ~VisionPreProcessor();
-      
-    private:
-      double hfov_;  // caps?
-      double vfov_;
-      
-      int frameWidth_;
-      int frameHeight_;
-      int cameraIndicator_;
-      
-      ros::Time nodeFrameTimestamp_;
-      
-      std::string cameraName_;
-      std::string parentFrameId_;
-      std::string frameId_;
-      
-      bool getParentFrameId();
-      template<class Type> void getParameter(const std::string& name, const Type& param);
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_VISION_PREPROCESSOR_H

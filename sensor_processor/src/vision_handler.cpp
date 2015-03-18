@@ -64,3 +64,20 @@ namespace sensor_processor
     transitionComplete(currentState_);
   }
 }
+
+
+/*
+ *     nodeFrameTimestamp_ = subscribedType_.header.stamp;
+    frameId_ = subscribedType_.header.frame_id;
+
+    if (frameId_[0] == '/')  // ??????????
+    {
+      frameId_ = frameId_.substr(1);
+      cameraIndicator_ = 1;
+    }
+*/
+
+
+
+
+

@@ -47,10 +47,33 @@ namespace sensor_processor
   class VisionPostProcessor: public PostProcessor<std::vector<cv::Point>, PublishedMessageType>
   {
     public:
-      VisionPostProcessor(NodeHandlePtr nhPtr);
+      typedef boost::shared_ptr<std::string> StringPtr;
+      typedef boost::shared_ptr<ros::Time> TimePtr;
+      
+      VisionPostProcessor(NodeHandlePtr nhPtr, StringPtr frameId, TimePtr time);
       virtual ~VisionPostProcessor();
 
       void findAnglesOfRotation(); 
+      
+    protected:
+      const StringPtr frameId_;
+      const TimePtr nodeFrameTimestamp_;
+      
+      //
+      double hfov_;  // caps?
+      double vfov_;
+      
+      int frameWidth_;
+      int frameHeight_;
+      int cameraIndicator_;
+      
+      std::string cameraName_;
+      std::string parentFrameId_;
+      
+      bool getParentFrameId();
+      void getGeneralParameters();
+      template<class Type> void getParameter(const std::string& name, const Type& param);
+      //
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
