@@ -39,7 +39,7 @@
 #ifndef SENSOR_PROCESSOR_ABSTRACT_PROCESSOR_H
 #define SENSOR_PROCESSOR_ABSTRACT_PROCESSOR_H
 
-#include <ros/ros.h>
+#include <boost/shared_ptr.hpp>
 
 namespace sensor_processor
 {
@@ -49,7 +49,10 @@ namespace sensor_processor
       AbstractProcessor();
       virtual ~AbstractProcessor;
       
-      void process() = 0;
+      virtual void process() = 0;
   };
 }  // namespace sensor_processor
+
+typedef boost::shared_ptr<AbstractProcessor> AbstractProcessorPtr;
+
 #endif  // SENSOR_PROCESSOR_ABSTRACT_PROCESSOR_H
