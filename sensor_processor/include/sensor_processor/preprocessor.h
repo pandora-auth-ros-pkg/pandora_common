@@ -45,26 +45,33 @@
 
 namespace sensor_processor
 {
-  template <class SubscribedType, class ProcessorInput>
-  class PreProcessor : public AbstractProcessor
+  template <class SubType, class ProcInput>
+  class PreProcessor: public AbstractProcessor
   {
     public:
       typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
-      typedef boost::shared_ptr<ProcessorInput> ProcessorInputPtr;
-      typedef boost::shared_ptr<SubscribedType> SubscribedTypePtr;
+      typedef boost::shared_ptr<ProcInput> ProcInputPtr;
+      typedef boost::shared_ptr<SubType const> SubTypeConstPtr;
 
-      PreProcessor(const NodeHandlePtr& nhPtr);
-      virtual ~PreProcessor();
+      PreProcessor(const NodeHandlePtr& nhPtr, void (callback*)(const SubTypeConstPtr&),
+          AbstractHadler<SubType>* handler);
+      virtual ~PreProc();
 
-      void setSubscriberInput(const SubscribedTypePtr& input);
-      void getProcessorInput(const ProcessorInputPtr& result);
+      void setSubInput(const SubTypeConstPtr& input);
+      void getProcInput(const ProcInputPtr& result);
 
     protected:
+      std::string inputTopic_;
+
       NodeHandlePtr nhPtr_;
-      SubscribedTypePtr subscribedTypePtr_;
-      ProcessorInput processorInput_;
+      ros::Subscriber nSubscriber_;
+      SubTypePtr subTypePtr_;
+      ProcInput procInput_;
 
       void getTopicName();
   };
 }  // namespace sensor_processor
+
+#include "sensor_processor/preprocessor.hxx"
+
 #endif  // SENSOR_PROCESSOR_PREPROCESSOR_H

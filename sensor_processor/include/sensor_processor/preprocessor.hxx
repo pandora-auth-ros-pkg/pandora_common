@@ -36,29 +36,36 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#include "sensor_processor/preprocessor.h"
-
 namespace sensor_processor
 {
-  template <class SubscribedType, class ProcessorInput>
-  PreProcessor<SubscribedType, ProcessorInput>::PreProcessor(const NodeHandlePtr& nhPtr)
+  template <class SubTypee, class ProcInput>
+  PreProcessor<SubType, ProcInput>::PreProcessor(const NodeHandlePtr& nhPtr,
+      void (callback*)(const SubTypeConstPtr&), AbstractHadler<SubType>* handler)
   {
     nhPtr_ = nhPtr;
+
+    if (!nhPtr_->getParam("subscribed_topic", inputTopic_))
+    {
+      ROS_FATAL("subscribed_topic param not found");
+      ROS_BREAK();
+    }
+
+    nSubscriber_ = nhPtr_->subscribe(inputTopic_, 1, callback, handler);
   }
 
-  template <class SubscribedType, class ProcessorInput>
-  PreProcessor<SubscribedType, ProcessorInput>::~PreProcessor()
+  template <class SubType, class ProcInput>
+  PreProcessor<SubType, ProcInput>::~PreProcessor()
   {}
 
-  template <class SubscribedType, class ProcessorInput>
-  void PreProcessor<SubscribedType, ProcessorInput>::setSubscriberInput(const SubscribedTypePtr& input)
+  template <class SubType, class ProcInput>
+  void PreProcessor<SubType, ProcInput>::setSubInput(const SubTypeConstPtr& input)
   {
-    subscribedType_ = input;
+    subTypePtr_ = input;
   }
 
-  template <class SubscribedType, class ProcessorInput>
-  void PreProcessor<SubscribedType, ProcessorInput>::getProcessorResult(const ProcessorInputPtr& result)
+  template <class SubType, class ProcInput>
+  void PreProcessor<SubType, ProcInput>::getProcResult(const ProcInputPtr& result)
   {
-    *result = processorInput_;
+    *result = procInput_;
   }
 }  // namespace sensor_processor

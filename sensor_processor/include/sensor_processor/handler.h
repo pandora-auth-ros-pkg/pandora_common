@@ -40,46 +40,48 @@
 #define SENSOR_PROCESSOR_HANDLER_H
 
 #include <ros/ros.h>
-#include "state_manager/state_client.h"
+#include "sensor_processor/abstract_handler.h"
 #include "sensor_processor/processor.h"
 #include "sensor_processor/preprocessor.h"
 #include "sensor_processor/postprocessor.h"
 
 namespace sensor_processor
 {
-  template <class SubscribedType, class ProcessorInput, class ProcessorOutput, class PublishedType>
-  class Handler: public StateClient
+  template <class SubType, class ProcInput, class ProcOutput, class PubType>
+  class Handler: public AbstractHandler
   {
     public:
       typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
-      typedef boost::shared_ptr<SubscribedType> SubscribedTypePtr;
-      typedef boost::shared_ptr<ProcessorInput> ProcessorInputPtr;
-      typedef boost::shared_ptr<ProcessorOutput> ProcessorOutputPtr;
-      typedef boost::shared_ptr<PublishedType> PublishedTypePtr;
-
+      typedef boost::shared_ptr<SubType const> SubTypeConstPtr;
+      typedef boost::shared_ptr<ProcInput> ProcInputPtr;
+      typedef boost::shared_ptr<ProcOutput> ProcOutputPtr;
+      typedef boost::shared_ptr<PubType> PubTypePtr;
 
       Handler();
       virtual ~Handler();
 
-      void completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr);
+      virtual void completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr);
+
+    protected:
+      virtual void startTransition(int newState);
 
     protected:
       NodeHandlePtr nhPtr_;
 
-      ros::Subscriber 
-
-      AbstractProcessorPtr preProcessor_;
-      AbstractProcessorPtr processor_;
-      AbstractProcessorPtr postProcessor_;
+      AbstractProcPtr preProcPtr_;
+      AbstractProcPtr processorPtr_;
+      AbstractProcPtr postProcPtr_;
 
       // non-thread safe
-      ProcessorInputPtr processorInputPtr_;
-      ProcessorOutputPtr processorOutputPtr_;
+      ProcInputPtr processorInputPtr_;
+      ProcOutputPtr processorOutputPtr_;
 
       bool nodeNowOn_;
       int currentState_;
       int previousState_;
   };
 }  // namespace sensor_processor
+
+#include "sensor_processor/handler.hxx"
 
 #endif  // SENSOR_PROCESSOR_HANDLER_H

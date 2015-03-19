@@ -38,23 +38,25 @@
 
 #include "sensor_processor/vision_handler.h"
 
+#include "state_manager_msgs/RobotModeMsg.h"
+
 namespace sensor_processor
 {
   VisionHandler::VisionHandler()
   {
-    
+
   }
-  
+
   VisionHandler::~VisionHandler()
   {
   }
-  
-  VisionHandler::startTransaction(int newState)
+
+  VisionHandler::startTransition(int newState)
   {
     currentState_ = newState;
-    
+
     // stuff................
-    
+
     if (currentState_ == state_manager_msgs::RobotModeMsg::MODE_TERMINATING))
     {
       ros::shutdown();
@@ -62,5 +64,14 @@ namespace sensor_processor
     }
     previousState_ = currentState_;
     transitionComplete(currentState_);
+    switch(currentState_) {
+      case 2:
+        preProcPtr_.reset( new VisionPreprocessor(
+              nhPtr_, completeProcessCallback, this) );
+        break;
+      case state_manager_msgs::RobotModeMsg::MODE_TERMINATING:
+        ros::shutdown();
+        return;
+
   }
 }

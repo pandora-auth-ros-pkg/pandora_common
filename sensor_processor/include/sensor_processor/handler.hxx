@@ -36,44 +36,42 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#include "sensor_processor/handler.h"
-
 namespace sensor_processor
 {
-  template <class SubscribedType, class ProcessorInput, class ProcessorOutput, class PublishedType>
-  Handler<SubscibedType, ProcessorInput, ProcessorOutput, PublishedType>::Handler()
+  template <class SubType, class ProcInput, class ProcOutput, class PubType>
+  Handler<SubscibedType, ProcInput, ProcOutput, PubType>::Handler()
   {
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
     previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
-    processorInputPtr_.reset( new ProcessorInput() );
-    processorOutputPtr_.reset( new ProcessorOutput() );
+    processorInputPtr_.reset( new ProcInput() );
+    processorOutputPtr_.reset( new ProcOutput() );
 
     clientInitialize();
     nodeNowOn_ = false;
     ROS_INFO_NAMED(PKG_NAME, "[Handler] Initialized");
   }
 
-  template <class SubscribedType, class ProcessorInput, class ProcessorOutput, class PublishedType>
-  Handler<SubscibedType, ProcessorInput, ProcessorOutput, PublishedType>::~Handler()
+  template <class SubType, class ProcInput, class ProcOutput, class PubType>
+  Handler<SubscibedType, ProcInput, ProcOutput, PubType>::~Handler()
   {
     ROS_INFO_NAMED(PKG_NAME, "[Handler] Terminated");
   }
 
-  template <class SubscribedType, class ProcessorInput, class ProcessorOutput, class PublishedType>
-  void Handler<SubscribedType, ProcessorInput, ProcessorOutput, PublishedType>::
-  completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr)
+  template <class SubType, class ProcInput, class ProcOutput, class PubType>
+  void Handler<SubType, ProcInput, ProcOutput, PubType>::
+  completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr)
   {
-    preProcessorPtr_->setSubscriberInput(subscribedTypePtr);
-    preProcessorPtr_->process();
-    preProcessorPtr_->getProcessorInput(processorInputPtr_);
+    preProcPtr_->setSubscriberInput(subscribedTypePtr);
+    preProcPtr_->process();
+    preProcPtr_->getProcInput(processorInputPtr_);
 
     processorPtr_->setInput(processorInputPtr_);
     processorPtr_->process();
     processorPtr_->getResult(processorOutputPtr_);
 
-    postProcessorPtr_->setSubscriberInput(subscribedTypePtr);
-    postProcessorPtr_->setProcessorOutput(processorOutputPtr_);
-    postProcessorPtr_->process();
+    postProcPtr_->setSubscriberInput(subscribedTypePtr);
+    postProcPtr_->setProcOutput(processorOutputPtr_);
+    postProcPtr_->process();
   }
 }  // namespace sensor_processor

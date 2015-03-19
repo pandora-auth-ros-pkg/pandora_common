@@ -36,30 +36,27 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#include "sensor_processor/processor.h"
-
 namespace sensor_processor
 {
-  template <class VisionInput, class VisionOutput>
-  Processor<VisionInput, VisionOutput>::Processor()
-  {
-    
-  }
-  
-  template <class VisionInput, class VisionOutput>
-  Processor<VisionInput, VisionOutput>::~Processor()
+  template <class ProcInput, class ProcOutput>
+  Processor<ProcInput, ProcOutput>::Processor()
   {
   }
-  
-  template <class VisionInput, class VisionOutput>
-  void Processor<VisionInput, VisionOutput>::setInput(const VisionInput& input)
+
+  template <class ProcInput, class ProcOutput>
+  Processor<ProcInput, ProcOutput>::~Processor()
+  {
+  }
+
+  template <class ProcInput, class ProcOutput>
+  void Processor<ProcInput, ProcOutput>::setInput(const ProcInputConstPtr& input)
   {
     input_ = input;
   }
-  
-  template <class VisionInput, class VisionOutput>
-  void Processor<VisionInput, VisionOutput>::getResult(const VisionOutputPtr& output)
+
+  template <class ProcInput, class ProcOutput>
+  void Processor<ProcInput, ProcOutput>::getResult(const ProcOutputPtr& output)
   {
-    output.reset(&output_);
+    *output = output_;
   }
 }  // namespace sensor_processor

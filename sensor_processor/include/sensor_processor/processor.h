@@ -44,21 +44,25 @@
 
 namespace sensor_processor
 {
-  template <class VisionInput, class VisionOutput>
+  template <class ProcInput, class ProcOutput>
   class Processor: public AbstractProcessor
   {
     public:
-      typedef boost::shared_ptr<VisionOutput> VisionOutputPtr;
-      
+      typedef boost::shared_ptr<ProcInput const> ProcInputConstPtr;
+      typedef boost::shared_ptr<ProcOutput> ProcOutputPtr;
+
       Processor();
       virtual ~Processor;
-      
-      void setInput(const VisionInput& input);
-      void getResult(const VisionOutputPtr& output);
-      
+
+      void setInput(const ProcInputConstPtr& input);
+      void getResult(const ProcOutputPtr& output);
+
     private:
-      VisionInput input_;
-      VisionOutput output_;
+      ProcInputConstPtr input_;
+      ProcOutput output_;
   };
 }  // namespace sensor_processor
+
+#include "sensor_processor/processor.hxx"
+
 #endif  // SENSOR_PROCESSOR_PROCESSOR_H
