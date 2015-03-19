@@ -41,6 +41,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <ros/ros.h>
+#include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
 {

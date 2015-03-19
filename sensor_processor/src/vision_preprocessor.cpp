@@ -43,14 +43,6 @@ namespace sensor_processor
   VisionPreProcessor::VisionPreProcessor(NodeHandlePtr nhPtr, 
     void (*callback)(const SubscribedTypePtr& subscribedTypePtr)): PreProcessor(nhPtr, callback)
   {
-    parentFrameId_ = "";
-    frameId_ = "";
-    
-    getGeneralParameters();
-    
-    //........
-    
-    ROS_INFO_NAMED(PKG_NAME, "[VisionPreProcessor] Initialized");  // for each vision node..............
   }
   
   VisionPreProcessor::~VisionPreProcessor()

@@ -36,26 +36,30 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
+#include <opencv2/opencv.hpp>
+#include "pandora_common_msgs/GeneralAlertMsg.h"
 #include "sensor_processor/vision_postprocessor.h"
 
 namespace sensor_processor
 {
-  template <class PublishedMessageType>
-  VisionPostProcessor<PublishedMessageType>::VisionPostProcessor(NodeHandlePtr nhPtr, StringPtr frameId): 
-    PostProcessor(nhPtr), frameId_(frameId), nodeFrameTimestamp_(time)
+  template <class VisionOutput, class PublishedType>
+  VisionPostProcessor<VisionOutput, PublishedType>::VisionPostProcessor(NodeHandlePtr nhPtr): PostProcessor(nhPtr)
+  {
+
+    //........
+
+  }
+  
+  template <class VisionOutput, class PublishedType>
+  VisionPostProcessor<VisionOutput, PublishedType>::~VisionPostProcessor()
   {
   }
   
-  template <class PublishedMessageType>
-  VisionPostProcessor<PublishedMessageType>::~VisionPostProcessor()
-  {
-  }
-  
-  template <class PublishedMessageType>
-  template<class Type> void VisionPostProcessor<PublishedMessageType>::getParameter(const std::string& name, 
+  template <class VisionOutput, class PublishedType>
+  template<class Type> void VisionPostProcessor<VisionOutput, PublishedType>::getParameter(const std::string& name, 
     const Type& param)
   {
-    if (nh_.getParam(name, param))
+    if (nhPtr_->getParam(name, param))
     {
       ROS_DEBUG_STREAM(name << " : " << param);
     }
@@ -66,34 +70,70 @@ namespace sensor_processor
     }
   }
   
-  template <class PublishedMessageType>
-  bool VisionPostProcessor<PublishedMessageType>::getParentFrameId()
+  template <class VisionOutput, class PublishedType>
+  bool VisionPostProcessor<VisionOutput, PublishedType>::getParentFrameId(std::string frameId)
   {
+    const std::string modelParamName = "/robot_description";
+    bool res = nhPtr_->hasParam(modelParamName);
+    std::string robotDescription;
     
+    if (!res || !nhPtr_->getParam(modelParamName, robotDescription))
+    {
+      ROS_ERROR("Robot description couldn't be retrieved from the parameter server.");
+      return false;
+    }
+    
+    boost::shared_ptr<urdf::ModelInterface> model(urdf::parseURDF(robotDescription));
+    boost::shared_ptr<const urdf::Link> currentLink = model->getLink(frameId);
+    
+    if (currentLink)
+    {
+      boost::shared_ptr<const urdf::Link> parentLink = currentLink->getParent();
+      parentFrameId_[frameId] = parentLink->name;
+      return true;
+    }
+    else
+    {
+      parentFrameIdMap_[frameId] = frameId;
+    }
+    return false;
   }
   
-  template <class PublishedMessageType>
-  void VisionPostProcessor<PublishedMessageType>::getGeneralParameters()
+  template <class VisionOutput, class PublishedType>
+  void VisionPostProcessor<VisionOutput, PublishedType>::getGeneralParameters(frameId)
   {
-    getParameter<int>("image_width", frameWidth_);
-    getParameter<int>("image_height", frameHeight_);
-    getParameter<double>("hfov", hfov_);
-    getParameter<double>("vfov", vfov_);
-    // .........
+    bool result = getParentFrameId(frameId);
+    getParameter<double>("hfov", hfovMap_[frameId]);
+    getParameter<double>("vfov", vfovMap_[frameId]);
   }
   
-  template <class PublishedMessageType>
-  void VisionPostProcessor<PublishedMessageType>::findAnglesOfRotation()
+  template <class VisionOutput, class PublishedType>
+  void VisionPostProcessor<VisionOutput, PublishedType>::setFrameInfo(const ImagePtr& frame)
   {
-    //~ for (int ii = 0; ii < output_.size(); i++)
+    frameHeight_ = frame->height;
+    frameWidth_ = frame->width;
+    
+    //~ if (frameId_[0] == '/')  // ??????????
     //~ {
-      //~ float x = output_[i].x - static_cast<float>(frameWidth_) / 2;
-      //~ float y = static_cast<float>(frameHeight_) / 2 - output_[i].y;
-      //~ 
-      //~ yaw_[i] = atan(2 * x / frameWidth_ * tan(hfov / 2));
-      //~ pitch_[i] = atan(2 * y / frameHeight_ * tan(vfov / 2));
+      //~ frameId_ = frameId_.substr(1);
     //~ }
     
-    
+    if (parentFrameId_.find(frame->frame_id) == parentFrameId_.end())
+    {
+      getGeneralParameters(frameId);
+    }
+  }
+  
+  template <class VisionOutput, class PublishedType>
+  void VisionPostProcessor<VisionOutput, PublishedType>::findAnglesOfRotation()
+  {
+    for (int ii = 0; ii < imagePoints_.size(); i++)
+    {
+      float x = imagePoints_[ii].x - static_cast<float>(frameWidth_) / 2;
+      float y = static_cast<float>(frameHeight_) / 2 - imagePoints_[ii].y;
+      
+      anglesOfRotation_[ii].yaw = atan(2 * x / frameWidth_ * tan(hfov / 2));
+      anglesOfRotation_[ii].pitch = atan(2 * y / frameHeight_ * tan(vfov / 2));
+    }
   }
 }  // namespace sensor_processor

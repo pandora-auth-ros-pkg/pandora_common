@@ -46,19 +46,16 @@
 
 namespace sensor_processor
 {
-  class VisionHandler: Handler<sensor_msgs::Image, cv::Mat, std::vector<cv::Points>, 
-    pandora_common_msgs::GeneralAlertMsg>
+  class VisionHandler: Handler<sensor_msgs::Image, cv::Mat, , >
   {
     public:
-      typedef boost::shared_ptr<std::string> StringPtr;
-      typedef boost::shared_ptr<ros::Time> TimePtr;
+      typedef boost::shared_ptr<sensor_msgs::Image> ImagePtr; 
       
       VisionHandler();
       ~VisionHandler();
       
     private:
-      StringPtr frameId_;
-      TimePtr nodeFrameTimestamp_;
+      ImagePtr frame;
   };
 }
 #endif  // SENSOR_PROCESSOR_HANDLER_H

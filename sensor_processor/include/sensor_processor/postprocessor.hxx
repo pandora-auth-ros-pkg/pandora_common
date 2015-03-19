@@ -43,9 +43,9 @@ namespace sensor_processor
   template <class VisionOutput, class PublishedType>
   PostProcessor<VisionOutput, PublishedType>::PostProcessor(NodeHandlePtr nhPtr)
   {
-    nh_ = *nhPtr;
+    nhPtr_ = nhPtr;
     getTopicName();
-    publisher_ = nh_.advertise<PublishedType>(publisherTopic_, 1);
+    publisher_ = nhPtr_->advertise<PublishedType>(publisherTopic_, 1);
     
     ROS_INFO_NAMED(PKG_NAME, "[PostProcessor] Initialized");
   }
@@ -58,9 +58,9 @@ namespace sensor_processor
   template <class VisionOutput, class PublishedType>
   void PostProcessor<VisionOutput, PublishedType>::getTopicName()
   {
-    std::string ns = nodeHandle_.getNamespace();
+    std::string ns = nhPtr_->getNamespace();
 
-    if (nh_.getParam(ns + "/published_topic", publisherTopic_))
+    if (nhPtr_->getParam(ns + "/published_topic", publisherTopic_))
     {
       publisherTopic_ = ns + "/" + publisherTopic_;
       ROS_INFO_NAMED(PKG_NAME, "[PostProcessor] Published to topic");

@@ -39,41 +39,36 @@
 #ifndef SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
 #define SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
 
+#include <urdf_parser/urdf_parser.h>
 #include "sensor_processor/postprocessor.h"
 
 namespace sensor_processor
 {
-  template <class PublishedMessageType>
-  class VisionPostProcessor: public PostProcessor<std::vector<cv::Point>, PublishedMessageType>
+  template <class VisionOutput, class PublishedType>
+  class VisionPostProcessor: public PostProcessor<VisionOutput, PublishedType>
   {
     public:
-      typedef boost::shared_ptr<std::string> StringPtr;
-      typedef boost::shared_ptr<ros::Time> TimePtr;
+      typedef boost::shared_ptr<sensor_msgs::Image> ImagePtr; 
       
-      VisionPostProcessor(NodeHandlePtr nhPtr, StringPtr frameId, TimePtr time);
+      explicit VisionPostProcessor(NodeHandlePtr nhPtr);
       virtual ~VisionPostProcessor();
-
-      void findAnglesOfRotation(); 
       
     protected:
-      const StringPtr frameId_;
-      const TimePtr nodeFrameTimestamp_;
-      
-      //
-      double hfov_;  // caps?
-      double vfov_;
-      
       int frameWidth_;
       int frameHeight_;
-      int cameraIndicator_;
       
-      std::string cameraName_;
-      std::string parentFrameId_;
+      std::map<std::string, std::string> parentFrameIdMap_;
+      std::map<std::string, double> hfovMap_;
+      std::map<std::string, double> vfovMap_;
       
+      std::vector<cv::Points> imagePoints_;
+      std::vector<pandora_common_msgs::GeneralAlertMsg> anglesOfRotation_;
+      
+      void setFrameInfo(const ImagePtr& frame);
+      void findAnglesOfRotation();
       bool getParentFrameId();
       void getGeneralParameters();
       template<class Type> void getParameter(const std::string& name, const Type& param);
-      //
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H

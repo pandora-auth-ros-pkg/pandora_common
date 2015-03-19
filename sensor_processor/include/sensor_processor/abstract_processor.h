@@ -46,8 +46,8 @@ namespace sensor_processor
   class AbstractProcessor
   {
     public:
-      AbstractProcessor();
-      virtual ~AbstractProcessor();
+      AbstractProcessor(){}
+      virtual ~AbstractProcessor(){}
 
       virtual void process() = 0;
   };

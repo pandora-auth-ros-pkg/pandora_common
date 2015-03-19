@@ -41,11 +41,12 @@
 
 #include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
+#include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
 {
   template <class ProcessorOutput, PublishedType>
-  class PostProcessor
+  class PostProcessor : public AbstractProcessor
   {
     public:
       typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
