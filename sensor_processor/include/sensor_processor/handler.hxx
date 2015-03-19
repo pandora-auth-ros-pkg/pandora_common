@@ -40,52 +40,40 @@
 
 namespace sensor_processor
 {
-  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
-  Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::Handler(): 
-    preProcessor_(nhPtr_(new ros::NodeHandle("")), &Handler<SubscibedType, VisionInput, VisionOutput, 
-    PublishedType>::completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr)), 
-    postProcessor_(nhPtr_)
+  template <class SubscribedType, class ProcessorInput, class ProcessorOutput, class PublishedType>
+  Handler<SubscibedType, ProcessorInput, ProcessorOutput, PublishedType>::Handler()
   {
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
     previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
-    
+
+    processorInputPtr_.reset( new ProcessorInput() );
+    processorOutputPtr_.reset( new ProcessorOutput() );
+
     clientInitialize();
-    
     nodeNowOn_ = false;
-    
     ROS_INFO_NAMED(PKG_NAME, "[Handler] Initialized");
   }
-  
-  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
-  Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::~Handler()
+
+  template <class SubscribedType, class ProcessorInput, class ProcessorOutput, class PublishedType>
+  Handler<SubscibedType, ProcessorInput, ProcessorOutput, PublishedType>::~Handler()
   {
     ROS_INFO_NAMED(PKG_NAME, "[Handler] Terminated");
   }
-  
-  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
-  void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::completeProcessCallback(const 
-    SubscribedTypePtr& subscribedTypePtr)
+
+  template <class SubscribedType, class ProcessorInput, class ProcessorOutput, class PublishedType>
+  void Handler<SubscribedType, ProcessorInput, ProcessorOutput, PublishedType>::
+  completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr)
   {
-    subscribedType_ = *subscibedTypePtr;
-    
-    preProcessor_.setSubscriberInput(&subscribedType_);
-    preProcessor_.preProcess();
-    VisionInputPtr visionInput(new VisionInput);
-    preProcessor_.getVisionResult(visionInput);
-    
-    processor_.setInput(*visionInput);
-    processor_.process();
-    VisionOutputPtr visionOutput(new VisionOutput);
-    processor_.getResult(visionOutput);
-    
-    postProcessor_.setVisionOutput(*visionOutput);
-    postProcessor_.postProcess();
-    postProcessor_.getPublisherResult(&publishedType_);
-  }
-  
-  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
-  void Handler<SubscibedType, VisionInput, VisionOutput, PublishedType>::completeTransition()
-  {
-    ROS_INFO("[Sensor Processor] : Transition Complete");
+    preProcessorPtr_->setSubscriberInput(subscribedTypePtr);
+    preProcessorPtr_->process();
+    preProcessorPtr_->getProcessorInput(processorInputPtr_);
+
+    processorPtr_->setInput(processorInputPtr_);
+    processorPtr_->process();
+    processorPtr_->getResult(processorOutputPtr_);
+
+    postProcessorPtr_->setSubscriberInput(subscribedTypePtr);
+    postProcessorPtr_->setProcessorOutput(processorOutputPtr_);
+    postProcessorPtr_->process();
   }
 }  // namespace sensor_processor

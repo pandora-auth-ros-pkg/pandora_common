@@ -44,28 +44,28 @@
 
 namespace sensor_processor
 {
-  template <class VisionOutput, PublishedType>
+  template <class ProcessorOutput, PublishedType>
   class PostProcessor
   {
     public:
       typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
       typedef boost::shared_ptr<PublishedType> PublishedTypePtr;
-      
-      explicit PostProcessor(NodeHandlePtr nhPtr);
-      ~PostProcessor;
-      
-      void setVisionOutput(const VisionOutput& input); 
-      void getPublisherResult(const PublishedTypePtr& result);
-      
-      void postProcess() = 0;
-      
+
+      explicit PostProcessor(const NodeHandlePtr& nhPtr,
+          const std::string& inputTopic);
+      virtual ~PostProcessor;
+
+      void setProcessorOutput(const ProcessorOutputConstPtr& processorOutput);
+      void setSubscriberInput(const SubscribedTypeConstPtr& nodeInput);
+
     protected:
       ros::NodeHandle nh_;
       ros::Publisher publisher_;
       std::string publisherTopic_;
-      
-      VisionOutput output_;
-      PublishedType publishedType_;
+
+      ProcessorOutputPtr processorOutput_;
+      SubscribedTypePtr nodeInput_;
+      PublishedType nodeOutput_;
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_POSTPROCESSOR_H

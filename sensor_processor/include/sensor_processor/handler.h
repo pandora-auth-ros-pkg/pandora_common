@@ -47,30 +47,39 @@
 
 namespace sensor_processor
 {
-  template <class SubscribedType, class VisionInput, class VisionOutput, class PublishedType>
+  template <class SubscribedType, class ProcessorInput, class ProcessorOutput, class PublishedType>
   class Handler: public StateClient
   {
     public:
+      typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
+      typedef boost::shared_ptr<SubscribedType> SubscribedTypePtr;
+      typedef boost::shared_ptr<ProcessorInput> ProcessorInputPtr;
+      typedef boost::shared_ptr<ProcessorOutput> ProcessorOutputPtr;
+      typedef boost::shared_ptr<PublishedType> PublishedTypePtr;
+
+
       Handler();
-      ~Handler();
-      
+      virtual ~Handler();
+
       void completeProcessCallback(const SubscribedTypePtr& subscribedTypePtr);
 
     protected:
       NodeHandlePtr nhPtr_;
 
-      Processor processor_;
-      PreProcessor preProcessor_;
-      PostProcessor postProcessor_;
-      SubscribedType subscribedType_;
-      PublishedType publishedType_;
-      
+      ros::Subscriber 
+
+      AbstractProcessorPtr preProcessor_;
+      AbstractProcessorPtr processor_;
+      AbstractProcessorPtr postProcessor_;
+
+      // non-thread safe
+      ProcessorInputPtr processorInputPtr_;
+      ProcessorOutputPtr processorOutputPtr_;
+
       bool nodeNowOn_;
       int currentState_;
       int previousState_;
-      
-      void startTransition(int newState) = 0;
-      void completeTransition();
   };
 }  // namespace sensor_processor
+
 #endif  // SENSOR_PROCESSOR_HANDLER_H

@@ -40,47 +40,25 @@
 
 namespace sensor_processor
 {
-  template <class SubscribedType, class VisionInput>
-  PreProcessor<SubscribedType, VisionInput>::PreProcessor(NodeHandlePtr nhPtr, 
-    void (*callback)(const SubscribedTypePtr& subscribedTypePtr))
+  template <class SubscribedType, class ProcessorInput>
+  PreProcessor<SubscribedType, ProcessorInput>::PreProcessor(const NodeHandlePtr& nhPtr)
   {
-    nh_ = *nhPtr;
-    getTopicName();
-
-    subscriber_ = nh_.subscribe(subscriberTopic_, 1, callback, this);
-  }
-  
-  template <class SubscribedType, class VisionInput>
-  PreProcessor<SubscribedType, VisionInput>::~PreProcessor()
-  {
-  }
-  
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::getTopicName()
-  {
-    std::string ns = nodeHandle_.getNamespace();
-
-    if (nh_.getParam(ns + "/subscribed_topic", subscriberTopic_))
-    {
-      subscriberTopic_ = ns + "/" + subscriberTopic_;
-      ROS_INFO_NAMED(PKG_NAME, "[PreProcessor] Subscribed to topic");
-    }
-    else
-    {
-      ROS_INFO_NAMED(PKG_NAME, "[PreProcessor] Could not find topic to subscribe to");
-      ROS_BREAK();
-    }
+    nhPtr_ = nhPtr;
   }
 
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::setSubscriberInput(const SubscribedType& input)
+  template <class SubscribedType, class ProcessorInput>
+  PreProcessor<SubscribedType, ProcessorInput>::~PreProcessor()
+  {}
+
+  template <class SubscribedType, class ProcessorInput>
+  void PreProcessor<SubscribedType, ProcessorInput>::setSubscriberInput(const SubscribedTypePtr& input)
   {
     subscribedType_ = input;
   }
-  
-  template <class SubscribedType, class VisionInput>
-  void PreProcessor<SubscribedType, VisionInput>::getVisionResult(const VisionInputPtr& result)
+
+  template <class SubscribedType, class ProcessorInput>
+  void PreProcessor<SubscribedType, ProcessorInput>::getProcessorResult(const ProcessorInputPtr& result)
   {
-    result.reset(&input_);
+    *result = processorInput_;
   }
 }  // namespace sensor_processor
