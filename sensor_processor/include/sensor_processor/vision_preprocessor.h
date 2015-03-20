@@ -42,6 +42,8 @@
 #include <opencv2/opencv.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
+#include "sensor_processor/abstract_handler.h"
 #include "sensor_processor/preprocessor.h"
 
 namespace sensor_processor
@@ -49,8 +51,12 @@ namespace sensor_processor
   class VisionPreProcessor: public PreProcessor<sensor_msgs::Image, cv::Mat>
   {
     public:
-      VisionPreProcessor(NodeHandlePtr nhPtr, void (*callback)(const SubscribedTypePtr& subscribedTypePtr));
+      VisionPreProcessor(NodeHandlePtr nhPtr, 
+        void (AbstractHandler<sensor_msgs::Image>::*callback)(const SubTypeConstPtr&), 
+        AbstractHandler<sensor_msgs::Image>* handler);
       virtual ~VisionPreProcessor();
+      
+      virtual void process();
   };
 }  // namespace sensor_processor
 #endif  // SENSOR_PROCESSOR_VISION_PREPROCESSOR_H

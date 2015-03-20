@@ -42,21 +42,19 @@
 
 namespace sensor_processor
 {
-  template <class VisionOutput, class PublishedType>
-  VisionPostProcessor<VisionOutput, PublishedType>::VisionPostProcessor(NodeHandlePtr nhPtr): PostProcessor(nhPtr)
+  template <class ProcOutput, class PubType>
+  VisionPostProcessor<ProcOutput, PubType>::VisionPostProcessor(NodeHandlePtr nhPtr): PostProcessor(nhPtr)
   {
-
-    //........
-
+    // .......
   }
   
-  template <class VisionOutput, class PublishedType>
-  VisionPostProcessor<VisionOutput, PublishedType>::~VisionPostProcessor()
+  template <class ProcOutput, class PubType>
+  VisionPostProcessor<ProcOutput, PubType>::~VisionPostProcessor()
   {
   }
   
-  template <class VisionOutput, class PublishedType>
-  template<class Type> void VisionPostProcessor<VisionOutput, PublishedType>::getParameter(const std::string& name, 
+  template <class ProcOutput, class PubType>
+  template<class Type> void VisionPostProcessor<ProcOutput, PubType>::getParameter(const std::string& name, 
     const Type& param)
   {
     if (nhPtr_->getParam(name, param))
@@ -70,8 +68,8 @@ namespace sensor_processor
     }
   }
   
-  template <class VisionOutput, class PublishedType>
-  bool VisionPostProcessor<VisionOutput, PublishedType>::getParentFrameId(std::string frameId)
+  template <class ProcOutput, class PubType>
+  bool VisionPostProcessor<ProcOutput, PubType>::getParentFrameId(std::string frameId)
   {
     const std::string modelParamName = "/robot_description";
     bool res = nhPtr_->hasParam(modelParamName);
@@ -99,15 +97,15 @@ namespace sensor_processor
     return false;
   }
   
-  template <class VisionOutput, class PublishedType>
-  void VisionPostProcessor<VisionOutput, PublishedType>::getGeneralParameters(frameId)
+  template <class ProcOutput, class PubType>
+  void VisionPostProcessor<ProcOutput, PubType>::getGeneralParameters(frameId)
   {
     bool result = getParentFrameId(frameId);
     getParameter<double>("hfov", hfovMap_[frameId]);
     getParameter<double>("vfov", vfovMap_[frameId]);
   }
   
-  template <class VisionOutput, class PublishedType>
+  template <class ProcOutput, class PubType>
   void VisionPostProcessor<VisionOutput, PublishedType>::setFrameInfo(const ImagePtr& frame)
   {
     frameHeight_ = frame->height;
@@ -124,8 +122,8 @@ namespace sensor_processor
     }
   }
   
-  template <class VisionOutput, class PublishedType>
-  void VisionPostProcessor<VisionOutput, PublishedType>::findAnglesOfRotation()
+  template <class ProcOutput, class PubType>
+  void VisionPostProcessor<ProcOutput, PubType>::findAnglesOfRotation()
   {
     for (int ii = 0; ii < imagePoints_.size(); i++)
     {

@@ -36,9 +36,8 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#include "sensor_processor/vision_handler.h"
-
 #include "state_manager_msgs/RobotModeMsg.h"
+#include "sensor_processor/vision_handler.h"
 
 namespace sensor_processor
 {
@@ -51,20 +50,12 @@ namespace sensor_processor
   {
   }
 
-  VisionHandler::startTransition(int newState)
+  void VisionHandler::startTransition(int newState)
   {
     currentState_ = newState;
-
-    // stuff................
-
-    if (currentState_ == state_manager_msgs::RobotModeMsg::MODE_TERMINATING))
+    
+    switch(currentState_)  // ................
     {
-      ros::shutdown();
-      return;
-    }
-    previousState_ = currentState_;
-    transitionComplete(currentState_);
-    switch(currentState_) {
       case 2:
         preProcPtr_.reset( new VisionPreprocessor(
               nhPtr_, completeProcessCallback, this) );
@@ -72,6 +63,8 @@ namespace sensor_processor
       case state_manager_msgs::RobotModeMsg::MODE_TERMINATING:
         ros::shutdown();
         return;
-
+    }
+    previousState_ = currentState_;
+    transitionComplete(currentState_);
   }
-}
+}  // namespace sensor_processor

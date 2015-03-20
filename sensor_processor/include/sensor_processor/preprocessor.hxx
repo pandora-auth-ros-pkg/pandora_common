@@ -36,13 +36,17 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
+#include "sensor_processor/preprocessor.h"
+
 namespace sensor_processor
 {
-  template <class SubTypee, class ProcInput>
-  PreProcessor<SubType, ProcInput>::PreProcessor(const NodeHandlePtr& nhPtr,
-      void (callback*)(const SubTypeConstPtr&), AbstractHadler<SubType>* handler)
+  template <class SubType, class ProcInput>
+  PreProcessor<SubType, ProcInput>::PreProcessor(const NodeHandlePtr& nhPtr, 
+    void (AbstractHandler<SubType>::*callback)(const SubTypeConstPtr&), 
+    AbstractHandler<SubType>* handler)
   {
     nhPtr_ = nhPtr;
+    abstractHandlerPtr_.reset(handler);
 
     if (!nhPtr_->getParam("subscribed_topic", inputTopic_))
     {
@@ -50,7 +54,7 @@ namespace sensor_processor
       ROS_BREAK();
     }
 
-    nSubscriber_ = nhPtr_->subscribe(inputTopic_, 1, callback, handler);
+    nSubscriber_ = nhPtr_->subscribe(inputTopic_, 1, callback, abstractHandlerPtr_);
   }
 
   template <class SubType, class ProcInput>
@@ -64,7 +68,7 @@ namespace sensor_processor
   }
 
   template <class SubType, class ProcInput>
-  void PreProcessor<SubType, ProcInput>::getProcResult(const ProcInputPtr& result)
+  void PreProcessor<SubType, ProcInput>::getProcInput(const ProcInputPtr& result)
   {
     *result = procInput_;
   }

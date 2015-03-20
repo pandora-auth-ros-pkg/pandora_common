@@ -42,6 +42,7 @@
 #include <boost/shared_ptr.hpp>
 #include <ros/ros.h>
 #include "sensor_processor/abstract_processor.h"
+#include "sensor_processor/abstract_handler.h"
 
 namespace sensor_processor
 {
@@ -52,21 +53,23 @@ namespace sensor_processor
       typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
       typedef boost::shared_ptr<ProcInput> ProcInputPtr;
       typedef boost::shared_ptr<SubType const> SubTypeConstPtr;
+      typedef boost::shared_ptr<AbstractHandler< SubType> > AbstractHandlerPtr;
 
-      PreProcessor(const NodeHandlePtr& nhPtr, void (callback*)(const SubTypeConstPtr&),
-          AbstractHadler<SubType>* handler);
-      virtual ~PreProc();
+      PreProcessor(const NodeHandlePtr& nhPtr, void (AbstractHandler<SubType>::*callback)(const SubTypeConstPtr&),
+          AbstractHandler<SubType>* handler);
+      virtual ~PreProcessor();
 
       void setSubInput(const SubTypeConstPtr& input);
       void getProcInput(const ProcInputPtr& result);
-
+      
     protected:
       std::string inputTopic_;
 
       NodeHandlePtr nhPtr_;
       ros::Subscriber nSubscriber_;
-      SubTypePtr subTypePtr_;
+      SubTypeConstPtr subTypePtr_;
       ProcInput procInput_;
+      AbstractHandlerPtr abstractHandlerPtr_;
 
       void getTopicName();
   };

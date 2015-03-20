@@ -52,7 +52,7 @@ namespace sensor_processor
       typedef boost::shared_ptr<ProcOutput> ProcOutputPtr;
 
       Processor();
-      virtual ~Processor;
+      virtual ~Processor();
 
       void setInput(const ProcInputConstPtr& input);
       void getResult(const ProcOutputPtr& output);

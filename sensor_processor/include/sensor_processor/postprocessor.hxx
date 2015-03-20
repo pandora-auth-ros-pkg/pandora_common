@@ -40,29 +40,27 @@
 
 namespace sensor_processor
 {
-  template <class VisionOutput, class PublishedType>
-  PostProcessor<VisionOutput, PublishedType>::PostProcessor(NodeHandlePtr nhPtr)
+  template <class ProcOutput, class PubType>
+  PostProcessor<ProcOutput, PubType>::PostProcessor(NodeHandlePtr nhPtr)
   {
     nhPtr_ = nhPtr;
     getTopicName();
-    publisher_ = nhPtr_->advertise<PublishedType>(publisherTopic_, 1);
-    
-    ROS_INFO_NAMED(PKG_NAME, "[PostProcessor] Initialized");
+    nPublisher_ = nhPtr_->advertise<PubType>(outputTopic_, 1);
   }
   
-  template <class VisionOutput, class PublishedType>
-  PostProcessor<VisionOutput, PublishedType>::~PostProcessor()
+  template <class ProcOutput, class PubType>
+  PostProcessor<ProcOutput, PubType>::~PostProcessor()
   {
   }
   
-  template <class VisionOutput, class PublishedType>
-  void PostProcessor<VisionOutput, PublishedType>::getTopicName()
+  template <class ProcOutput, class PubType>
+  void PostProcessor<ProcOutput, PubType>::getTopicName()
   {
     std::string ns = nhPtr_->getNamespace();
 
-    if (nhPtr_->getParam(ns + "/published_topic", publisherTopic_))
+    if (nhPtr_->getParam(ns + "/published_topic", outputTopic_))
     {
-      publisherTopic_ = ns + "/" + publisherTopic_;
+      outputTopic_ = ns + "/" + outputTopic_;
       ROS_INFO_NAMED(PKG_NAME, "[PostProcessor] Published to topic");
     }
     else
@@ -71,16 +69,16 @@ namespace sensor_processor
     }
   }
   
-  template <class VisionOutput, class PublishedType>
-  void PostProcessor<VisionOutput, PublishedType>::setVisionOutput(const VisionOutput& input)
+  template <class ProcOutput, class PubType>
+  void PostProcessor<ProcOutput, PubType>::setProcOutput(const ProcOutputConstPtr& input)
   {
     output_ = input;
   }
   
-  template <class VisionOutput, class PublishedType>
-  void PostProcessor<VisionOutput, PublishedType>::getPublisherResult(const PublishedTypePtr& result)
+  template <class ProcOutput, class PubType>
+  void PostProcessor<ProcOutput, PubType>::getPubOutput(const PubTypePtr& result)
   {
-    result.reset(&publishedType_);
-    publisher_.publish(publishedType_);
+    *result = pubType_;
+    nPublisher_.publish(pubType_);
   }
 }  // namespace sensor_processor

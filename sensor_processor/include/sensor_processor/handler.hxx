@@ -36,10 +36,12 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
+#include "sensor_processor/handler.h"
+
 namespace sensor_processor
 {
   template <class SubType, class ProcInput, class ProcOutput, class PubType>
-  Handler<SubscibedType, ProcInput, ProcOutput, PubType>::Handler()
+  Handler<SubType, ProcInput, ProcOutput, PubType>::Handler()
   {
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
     previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
@@ -49,18 +51,18 @@ namespace sensor_processor
 
     clientInitialize();
     nodeNowOn_ = false;
-    ROS_INFO_NAMED(PKG_NAME, "[Handler] Initialized");
+    ROS_INFO("[Handler] Initialized");
   }
 
   template <class SubType, class ProcInput, class ProcOutput, class PubType>
-  Handler<SubscibedType, ProcInput, ProcOutput, PubType>::~Handler()
+  Handler<SubType, ProcInput, ProcOutput, PubType>::~Handler()
   {
-    ROS_INFO_NAMED(PKG_NAME, "[Handler] Terminated");
+    ROS_INFO("[Handler] Terminated");
   }
 
   template <class SubType, class ProcInput, class ProcOutput, class PubType>
   void Handler<SubType, ProcInput, ProcOutput, PubType>::
-  completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr)
+    completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr)
   {
     preProcPtr_->setSubscriberInput(subscribedTypePtr);
     preProcPtr_->process();
@@ -70,7 +72,7 @@ namespace sensor_processor
     processorPtr_->process();
     processorPtr_->getResult(processorOutputPtr_);
 
-    postProcPtr_->setSubscriberInput(subscribedTypePtr);
+    // postProcPtr_->setSubscriberInput(subscribedTypePtr);
     postProcPtr_->setProcOutput(processorOutputPtr_);
     postProcPtr_->process();
   }

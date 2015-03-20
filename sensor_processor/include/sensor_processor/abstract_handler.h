@@ -52,13 +52,15 @@ namespace sensor_processor
     public:
       typedef boost::shared_ptr<SubType const> SubTypeConstPtr;
 
-      AbstractHandler();
-      virtual ~AbstractHandler();
+      AbstractHandler(){}
+      virtual ~AbstractHandler(){}
 
       virtual void completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr) = 0;
 
     protected:
-      virtual startTransition(int newState);
+      // void initializeClient(){ clientInitialize(); }  // ...................
+      void clientInitialize();
+      virtual void startTransition(int newState);
   };
 }  // namespace sensor_processor
 

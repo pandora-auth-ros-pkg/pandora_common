@@ -41,12 +41,13 @@
 
 #include <opencv2/opencv.hpp>
 #include <sensor_msgs/Image.h>
-#include "pandora_common_msgs/GeneralAlertMsg.h"
+#include "pandora_common_msgs/GeneralAlertMsg.h"  //
 #include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
-  class VisionHandler: Handler<sensor_msgs::Image, cv::Mat, , >
+  class VisionHandler: public Handler<sensor_msgs::Image, cv::Mat, std::vector<cv::Point>, 
+    pandora_common_msgs::GeneralAlertMsg>  //
   {
     public:
       typedef boost::shared_ptr<sensor_msgs::Image> ImagePtr;

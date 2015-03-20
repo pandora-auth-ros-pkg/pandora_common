@@ -41,7 +41,9 @@
 namespace sensor_processor
 {
   VisionPreProcessor::VisionPreProcessor(NodeHandlePtr nhPtr, 
-    void (*callback)(const SubscribedTypePtr& subscribedTypePtr)): PreProcessor(nhPtr, callback)
+    void (AbstractHandler<sensor_msgs::Image>::*callback)(const SubTypeConstPtr&), 
+    AbstractHandler<sensor_msgs::Image>* handler): 
+    PreProcessor(nhPtr, callback, handler)
   {
   }
   
@@ -49,13 +51,13 @@ namespace sensor_processor
   {
   }
   
-  void VisionPreProcessor::preProcess()
+  void VisionPreProcessor::process()
   {
     cv_bridge::CvImagePtr inMsg;
-    inMsg = cv_bridge::toCvCopy(subscribedType_, sensor_msgs::image_encodings::BGR8);
-    input_ = inMsg->image.clone();
+    inMsg = cv_bridge::toCvCopy(*subTypePtr_, sensor_msgs::image_encodings::BGR8);
+    procInput_ = inMsg->image.clone();
     
-    if (input_.empty())
+    if (procInput_.empty())
     {
       ROS_ERROR("[Node] No more Frames or something went wrong with bag file");
       // ros::shutdown();

@@ -51,8 +51,7 @@ namespace sensor_processor
 
       virtual void process() = 0;
   };
+  typedef boost::shared_ptr<AbstractProcessor> AbstractProcessorPtr;
+  
 }  // namespace sensor_processor
-
-typedef boost::shared_ptr<AbstractProcessor> AbstractProcessorPtr;
-
 #endif  // SENSOR_PROCESSOR_ABSTRACT_PROCESSOR_H

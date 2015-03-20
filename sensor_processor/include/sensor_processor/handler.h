@@ -48,7 +48,7 @@
 namespace sensor_processor
 {
   template <class SubType, class ProcInput, class ProcOutput, class PubType>
-  class Handler: public AbstractHandler
+  class Handler: public AbstractHandler<SubType>
   {
     public:
       typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
@@ -68,9 +68,9 @@ namespace sensor_processor
     protected:
       NodeHandlePtr nhPtr_;
 
-      AbstractProcPtr preProcPtr_;
-      AbstractProcPtr processorPtr_;
-      AbstractProcPtr postProcPtr_;
+      AbstractProcessorPtr preProcPtr_;
+      AbstractProcessorPtr processorPtr_;
+      AbstractProcessorPtr postProcPtr_;
 
       // non-thread safe
       ProcInputPtr processorInputPtr_;

@@ -44,8 +44,8 @@
 
 namespace sensor_processor
 {
-  template <class VisionOutput, class PublishedType>
-  class VisionPostProcessor: public PostProcessor<VisionOutput, PublishedType>
+  template <class ProcOutput, class PubType>
+  class VisionPostProcessor: public PostProcessor<ProcOutput, PubType>
   {
     public:
       typedef boost::shared_ptr<sensor_msgs::Image> ImagePtr; 
