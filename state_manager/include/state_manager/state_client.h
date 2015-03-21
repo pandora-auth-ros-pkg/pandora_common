@@ -60,7 +60,8 @@ class StateClient {
 		bool registerToServer;
 
 
-	protected:
+	public:
+
 
 		/**
 	   * Check in node as Initialized
@@ -79,8 +80,6 @@ class StateClient {
 		 * @param newState the state at which the client has transitioned.
 		 */
 		void transitionComplete(int newState);
-
-	public:
 
 		/**
 		 * Constructor.
