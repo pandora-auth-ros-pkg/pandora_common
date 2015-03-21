@@ -56,6 +56,10 @@ namespace sensor_processor
       typedef boost::shared_ptr<ProcInput> ProcInputPtr;
       typedef boost::shared_ptr<ProcOutput> ProcOutputPtr;
       typedef boost::shared_ptr<PubType> PubTypePtr;
+      
+      typedef boost::shared_ptr< PreProcessor<SubType, ProcInput> > PreProcessorPtr;
+      typedef boost::shared_ptr< Processor<ProcInput, ProcOutput> > ProcessorPtr;
+      typedef boost::shared_ptr< PostProcessor<ProcOutput, PubType> > PostProcessorPtr;
 
       Handler();
       virtual ~Handler();

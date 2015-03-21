@@ -58,8 +58,6 @@ namespace sensor_processor
       virtual void completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr) = 0;
 
     protected:
-      // void initializeClient(){ clientInitialize(); }  // ...................
-      void clientInitialize();
       virtual void startTransition(int newState);
   };
 }  // namespace sensor_processor

@@ -49,7 +49,7 @@ namespace sensor_processor
     processorInputPtr_.reset( new ProcInput() );
     processorOutputPtr_.reset( new ProcOutput() );
 
-    clientInitialize();
+    StateClient::clientInitialize();
     nodeNowOn_ = false;
     ROS_INFO("[Handler] Initialized");
   }
@@ -64,16 +64,20 @@ namespace sensor_processor
   void Handler<SubType, ProcInput, ProcOutput, PubType>::
     completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr)
   {
-    preProcPtr_->setSubscriberInput(subscribedTypePtr);
-    preProcPtr_->process();
-    preProcPtr_->getProcInput(processorInputPtr_);
-
-    processorPtr_->setInput(processorInputPtr_);
-    processorPtr_->process();
-    processorPtr_->getResult(processorOutputPtr_);
-
-    // postProcPtr_->setSubscriberInput(subscribedTypePtr);
-    postProcPtr_->setProcOutput(processorOutputPtr_);
-    postProcPtr_->process();
+    PreProcessorPtr preProcPtr(boost::dynamic_pointer_cast< PreProcessor< SubType, ProcInput> >(preProcPtr_));
+    preProcPtr->setSubInput(subscribedTypePtr);
+    preProcPtr->process();
+    preProcPtr->getProcInput(processorInputPtr_);
+    
+    ProcessorPtr processorPtr(boost::dynamic_pointer_cast< Processor< ProcInput, ProcOutput> >(processorPtr_));
+    processorPtr->setInput(processorInputPtr_);
+    processorPtr->process();
+    processorPtr->getResult(processorOutputPtr_);
+    
+    PostProcessorPtr postProcPtr(boost::dynamic_pointer_cast< PostProcessor< ProcOutput, PubType> >(postProcPtr_));
+    // postProcPtr->setSubscriberInput(subscribedTypePtr);
+    postProcPtr->setProcOutput(processorOutputPtr_);
+    postProcPtr->process();
+    // postProcPtr->getPubOutput(); ???????
   }
 }  // namespace sensor_processor
