@@ -36,7 +36,6 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#include "state_manager_msgs/RobotModeMsg.h"
 #include "sensor_processor/vision_handler.h"
 
 namespace sensor_processor
@@ -57,7 +56,7 @@ namespace sensor_processor
     switch(currentState_)  // ................
     {
       case 2:
-        preProcPtr_.reset( new VisionPreprocessor(
+        preProcPtr_.reset( new VisionPreProcessor(
               nhPtr_, completeProcessCallback, this) );
         break;
       case state_manager_msgs::RobotModeMsg::MODE_TERMINATING:

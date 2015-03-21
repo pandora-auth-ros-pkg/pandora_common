@@ -42,7 +42,9 @@
 #include <opencv2/opencv.hpp>
 #include <sensor_msgs/Image.h>
 #include "pandora_common_msgs/GeneralAlertMsg.h"  //
+#include "state_manager_msgs/RobotModeMsg.h"
 #include "sensor_processor/handler.h"
+#include "sensor_processor/vision_preprocessor.h"
 
 namespace sensor_processor
 {
