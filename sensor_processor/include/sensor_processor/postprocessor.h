@@ -40,7 +40,6 @@
 #define SENSOR_PROCESSOR_POSTPROCESSOR_H
 
 #include <ros/ros.h>
-#include <boost/shared_ptr.hpp>
 #include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
@@ -59,15 +58,21 @@ namespace sensor_processor
       // void setSubscriberInput(const SubTypeConstPtr subTypePtr);
       void setProcOutput(const ProcOutputConstPtr& input);
       void getPubOutput(const PubTypePtr& result);
+      virtual void process();
 
     protected:
       std::string outputTopic_;
       
-      ros::NodeHandle nh_;
+      NodeHandlePtr nhPtr_;
       ros::Publisher nPublisher_;
       ProcOutputConstPtr procOutput_;
       // SubscribedTypePtr nodeInput_;
       PubType pubType_;
+      
+      void getTopicName();
   };
 }  // namespace sensor_processor
+
+#include "sensor_processor/postprocessor.hxx"
+
 #endif  // SENSOR_PROCESSOR_POSTPROCESSOR_H

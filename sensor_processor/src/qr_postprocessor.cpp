@@ -36,47 +36,36 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#ifndef SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
-#define SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
-
-#include <urdf_parser/urdf_parser.h>
-#include <sensor_msgs/Image.h>  // ................
-#include "pandora_common_msgs/GeneralAlertMsg.h"
-#include "sensor_processor/postprocessor.h"
+#include "sensor_processor/qr_postprocessor.h"
 
 namespace sensor_processor
 {
-  template <class ProcOutput, class PubType>
-  class VisionPostProcessor: public PostProcessor<ProcOutput, PubType>
+  QrPostProcessor::QrPostProcessor(const NodeHandlePtr& nhPtr): VisionPostProcessor(nhPtr)
   {
-    public:
-      typedef boost::shared_ptr<sensor_msgs::Image> ImagePtr; 
+    for (int ii = 0; ii < procOutput_->size(); ii++)  // procOutput_ not accessible here
+    {
+      imagePoints_[ii].x = procOutput_[ii].qrcodeCenter.x;
+      imagePoints_[ii].y = procOutput_[ii].qrcodeCenter.y;
+    }
+  }
+  
+  QrPostProcessor::~QrPostProcessor()
+  {
+  }
+  
+  void QrPostProcessor::process()
+  {
+    pandora_vision_msgs::QRAlertMsg qrCodeMsg;
+    
+    findAnglesOfRotation();
+    
+    for (int ii = 0; ii < procOutput_->size(); ii++)  // procOutput
+    {
+      qrCodeMsg.QRcontent = procOutput_[ii].qrcode_desc;
+      qrCodeMsg.yaw = anglesOfRotation_[ii].yaw;
+      qrCodeMsg.pitch = anglesOfRotation_[ii].pitch;
       
-      explicit VisionPostProcessor(const NodeHandlePtr& nhPtr);
-      virtual ~VisionPostProcessor();
-      
-      virtual void process();
-      
-    protected:
-      int frameWidth_;
-      int frameHeight_;
-      std::string frameId_;
-      
-      std::map<std::string, std::string> parentFrameIdMap_;
-      std::map<std::string, double> hfovMap_;
-      std::map<std::string, double> vfovMap_;
-      
-      std::vector<cv::Point> imagePoints_;
-      std::vector<pandora_common_msgs::GeneralAlertMsg> anglesOfRotation_;
-      
-      void setFrameInfo(const ImagePtr& frame);  //
-      void findAnglesOfRotation();
-      bool getParentFrameId();
-      void getAllParameters();
-      template<class Type> void getParameter(const std::string& name, const Type& param);
-  };
-}  // namespace sensor_processor
-
-#include "sensor_processor/vision_postprocessor.hxx"
-
-#endif  // SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
+      pubType_.qrAlerts.push_back(qrCodeMsg);  // pubType_
+    }
+  }
+}

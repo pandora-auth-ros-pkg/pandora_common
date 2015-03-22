@@ -43,7 +43,7 @@
 namespace sensor_processor
 {
   template <class ProcOutput, class PubType>
-  VisionPostProcessor<ProcOutput, PubType>::VisionPostProcessor(NodeHandlePtr nhPtr): PostProcessor(nhPtr)
+  VisionPostProcessor<ProcOutput, PubType>::VisionPostProcessor(const NodeHandlePtr& nhPtr): PostProcessor(nhPtr)
   {
     // .......
   }
@@ -69,7 +69,7 @@ namespace sensor_processor
   }
   
   template <class ProcOutput, class PubType>
-  bool VisionPostProcessor<ProcOutput, PubType>::getParentFrameId(std::string frameId)
+  bool VisionPostProcessor<ProcOutput, PubType>::getParentFrameId()
   {
     const std::string modelParamName = "/robot_description";
     bool res = nhPtr_->hasParam(modelParamName);
@@ -82,32 +82,33 @@ namespace sensor_processor
     }
     
     boost::shared_ptr<urdf::ModelInterface> model(urdf::parseURDF(robotDescription));
-    boost::shared_ptr<const urdf::Link> currentLink = model->getLink(frameId);
+    boost::shared_ptr<const urdf::Link> currentLink = model->getLink(frameId_);
     
     if (currentLink)
     {
       boost::shared_ptr<const urdf::Link> parentLink = currentLink->getParent();
-      parentFrameId_[frameId] = parentLink->name;
+      parentFrameIdMap_[frameId_] = parentLink->name;
       return true;
     }
     else
     {
-      parentFrameIdMap_[frameId] = frameId;
+      parentFrameIdMap_[frameId_] = frameId_;
     }
     return false;
   }
   
   template <class ProcOutput, class PubType>
-  void VisionPostProcessor<ProcOutput, PubType>::getGeneralParameters(frameId)
+  void VisionPostProcessor<ProcOutput, PubType>::getAllParameters()
   {
-    bool result = getParentFrameId(frameId);
-    getParameter<double>("hfov", hfovMap_[frameId]);
-    getParameter<double>("vfov", vfovMap_[frameId]);
+    bool result = getParentFrameId(frameId_);
+    getParameter<double>("hfov", hfovMap_[frameId_]);
+    getParameter<double>("vfov", vfovMap_[frameId_]);
   }
   
   template <class ProcOutput, class PubType>
-  void VisionPostProcessor<VisionOutput, PublishedType>::setFrameInfo(const ImagePtr& frame)
+  void VisionPostProcessor<ProcOutput, PubType>::setFrameInfo(const ImagePtr& frame)
   {
+    frameId_ = frame->header.frame_id;
     frameHeight_ = frame->height;
     frameWidth_ = frame->width;
     
@@ -116,22 +117,22 @@ namespace sensor_processor
       //~ frameId_ = frameId_.substr(1);
     //~ }
     
-    if (parentFrameId_.find(frame->frame_id) == parentFrameId_.end())
+    if (parentFrameIdMap_.find(frameId_) == parentFrameIdMap_.end())
     {
-      getGeneralParameters(frameId);
+      getAllParameters(frameId_);
     }
   }
   
   template <class ProcOutput, class PubType>
   void VisionPostProcessor<ProcOutput, PubType>::findAnglesOfRotation()
   {
-    for (int ii = 0; ii < imagePoints_.size(); i++)
+    for (int ii = 0; ii < imagePoints_.size(); ii++)
     {
       float x = imagePoints_[ii].x - static_cast<float>(frameWidth_) / 2;
       float y = static_cast<float>(frameHeight_) / 2 - imagePoints_[ii].y;
       
-      anglesOfRotation_[ii].yaw = atan(2 * x / frameWidth_ * tan(hfov / 2));
-      anglesOfRotation_[ii].pitch = atan(2 * y / frameHeight_ * tan(vfov / 2));
+      anglesOfRotation_[ii].yaw = atan(2 * x / frameWidth_ * tan(hfovMap_[frameId_] / 2));
+      anglesOfRotation_[ii].pitch = atan(2 * y / frameHeight_ * tan(vfovMap_[frameId_] / 2));
     }
   }
 }  // namespace sensor_processor

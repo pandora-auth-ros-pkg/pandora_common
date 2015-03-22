@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   state_manager
   state_manager_msgs
   pandora_common_msgs
+  pandora_vision_msgs
   roslint
   )
 
@@ -21,6 +22,7 @@ catkin_package(
     state_manager
     state_manager_msgs
     pandora_common_msgs
+    pandora_vision_msgs
   INCLUDE_DIRS
     include
   )
@@ -34,10 +36,10 @@ target_link_libraries(vision_preprocessor
   ${catkin_LIBRARIES}
   )
   
-#~ add_library(vision_postprocessor src/vision_postprocessor.cpp)
-#~ target_link_libraries(vision_postprocessor
-  #~ ${catkin_LIBRARIES}
-  #~ )
+add_library(qr_postprocessor src/qr_postprocessor.cpp)
+target_link_libraries(qr_postprocessor
+  ${catkin_LIBRARIES}
+  )
   
 add_library(vision_handler src/vision_handler.cpp)
 target_link_libraries(vision_handler

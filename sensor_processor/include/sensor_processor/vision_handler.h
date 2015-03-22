@@ -41,15 +41,16 @@
 
 #include <opencv2/opencv.hpp>
 #include <sensor_msgs/Image.h>
-#include "pandora_common_msgs/GeneralAlertMsg.h"  //
 #include "state_manager_msgs/RobotModeMsg.h"
+#include "pandora_vision_msgs/QRAlertsVectorMsg.h"
 #include "sensor_processor/handler.h"
 #include "sensor_processor/vision_preprocessor.h"  //
+#include "sensor_processor/qr_postprocessor.h"  //
 
 namespace sensor_processor
 {
-  class VisionHandler: public Handler<sensor_msgs::Image, cv::Mat, std::vector<cv::Point>, 
-    pandora_common_msgs::GeneralAlertMsg>  //
+  class VisionHandler: public Handler<sensor_msgs::Image, cv::Mat, std::vector<QrCode>, 
+    pandora_vision_msgs::QRAlertsVectorMsg>
   {
     public:
       typedef boost::shared_ptr<sensor_msgs::Image> ImagePtr;
@@ -61,6 +62,6 @@ namespace sensor_processor
       ImagePtr frame;
       virtual void startTransition(int newState);
   };
-}
+}  // namespace sensor_processor
 
 #endif  // SENSOR_PROCESSOR_HANDLER_H

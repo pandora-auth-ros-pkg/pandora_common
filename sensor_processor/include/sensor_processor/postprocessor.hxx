@@ -41,7 +41,7 @@
 namespace sensor_processor
 {
   template <class ProcOutput, class PubType>
-  PostProcessor<ProcOutput, PubType>::PostProcessor(NodeHandlePtr nhPtr)
+  PostProcessor<ProcOutput, PubType>::PostProcessor(const NodeHandlePtr& nhPtr)
   {
     nhPtr_ = nhPtr;
     getTopicName();
@@ -61,18 +61,18 @@ namespace sensor_processor
     if (nhPtr_->getParam(ns + "/published_topic", outputTopic_))
     {
       outputTopic_ = ns + "/" + outputTopic_;
-      ROS_INFO_NAMED(PKG_NAME, "[PostProcessor] Published to topic");
+      ROS_INFO("[PostProcessor] Published to topic");
     }
     else
     {
-      ROS_INFO_NAMED (PKG_NAME, "[PostProcessor] Could not find topic to publish to");
+      ROS_INFO("[PostProcessor] Could not find topic to publish to");
     }
   }
   
   template <class ProcOutput, class PubType>
   void PostProcessor<ProcOutput, PubType>::setProcOutput(const ProcOutputConstPtr& input)
   {
-    output_ = input;
+    procOutput_ = input;
   }
   
   template <class ProcOutput, class PubType>

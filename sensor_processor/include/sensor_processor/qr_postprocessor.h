@@ -36,47 +36,30 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
-#ifndef SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
-#define SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
+#ifndef SENSOR_PROCESSOR_QR_POSTPROCESSOR_H
+#define SENSOR_PROCESSOR_QR_POSTPROCESSOR_H
 
-#include <urdf_parser/urdf_parser.h>
-#include <sensor_msgs/Image.h>  // ................
-#include "pandora_common_msgs/GeneralAlertMsg.h"
-#include "sensor_processor/postprocessor.h"
+#include <opencv2/opencv.hpp>
+#include "pandora_vision_msgs/QRAlertMsg.h"
+#include "pandora_vision_msgs/QRAlertsVectorMsg.h"
+#include "sensor_processor/vision_postprocessor.h"
 
 namespace sensor_processor
 {
-  template <class ProcOutput, class PubType>
-  class VisionPostProcessor: public PostProcessor<ProcOutput, PubType>
+  struct QrCode
+  {
+    cv::Point qrcodeCenter;
+    std::string qrcodeDesc;
+  };
+  
+  class QrPostProcessor: public VisionPostProcessor<std::vector<QrCode>, pandora_vision_msgs::QRAlertsVectorMsg>
   {
     public:
-      typedef boost::shared_ptr<sensor_msgs::Image> ImagePtr; 
-      
-      explicit VisionPostProcessor(const NodeHandlePtr& nhPtr);
-      virtual ~VisionPostProcessor();
+      explicit QrPostProcessor(const NodeHandlePtr& nhPtr);
+      virtual ~QrPostProcessor();
       
       virtual void process();
-      
-    protected:
-      int frameWidth_;
-      int frameHeight_;
-      std::string frameId_;
-      
-      std::map<std::string, std::string> parentFrameIdMap_;
-      std::map<std::string, double> hfovMap_;
-      std::map<std::string, double> vfovMap_;
-      
-      std::vector<cv::Point> imagePoints_;
-      std::vector<pandora_common_msgs::GeneralAlertMsg> anglesOfRotation_;
-      
-      void setFrameInfo(const ImagePtr& frame);  //
-      void findAnglesOfRotation();
-      bool getParentFrameId();
-      void getAllParameters();
-      template<class Type> void getParameter(const std::string& name, const Type& param);
   };
-}  // namespace sensor_processor
+}  // namespace sensor_processor 
 
-#include "sensor_processor/vision_postprocessor.hxx"
-
-#endif  // SENSOR_PROCESSOR_VISION_POSTPROCESSOR_H
+#endif  // SENSOR_PROCESSOR_QR_POSTPROCESSOR_H
