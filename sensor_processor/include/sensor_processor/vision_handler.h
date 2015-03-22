@@ -59,6 +59,7 @@ namespace sensor_processor
 
     private:
       ImagePtr frame;
+      virtual void startTransition(int newState);
   };
 }
 
