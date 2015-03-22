@@ -41,20 +41,15 @@
 namespace sensor_processor
 {
   template <class SubType, class ProcInput>
-  PreProcessor<SubType, ProcInput>::PreProcessor(const NodeHandlePtr& nhPtr, 
-    void (AbstractHandler<SubType>::*callback)(const SubTypeConstPtr&), 
-    AbstractHandler<SubType>* handler)
+  PreProcessor<SubType, ProcInput>::PreProcessor(AbstractHandler<SubType>* handler): nh_("")
   {
-    nhPtr_ = nhPtr;
-    abstractHandlerPtr_.reset(handler);
-
-    if (!nhPtr_->getParam("subscribed_topic", inputTopic_))
+    if (nh_.getParam("subscribed_topic", inputTopic_))
     {
       ROS_FATAL("subscribed_topic param not found");
       ROS_BREAK();
     }
 
-    nSubscriber_ = nhPtr_->subscribe(inputTopic_, 1, callback, abstractHandlerPtr_);
+    nSubscriber_ = nh_.subscribe(inputTopic_, 1, &AbstractHandler<SubType>::completeProcessCallback, handler);
   }
 
   template <class SubType, class ProcInput>

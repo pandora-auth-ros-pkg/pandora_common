@@ -56,8 +56,7 @@ namespace sensor_processor
     switch(currentState_)  // ................
     {
       case 2:
-        preProcPtr_.reset( new VisionPreProcessor(nhPtr_, 
-          &AbstractHandler<sensor_msgs::Image>::completeProcessCallback, this) );  //2nd argument??????????
+        preProcPtr_.reset( new VisionPreProcessor(this) );
         break;
       case state_manager_msgs::RobotModeMsg::MODE_TERMINATING:
         ros::shutdown();

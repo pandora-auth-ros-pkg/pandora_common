@@ -51,9 +51,7 @@ namespace sensor_processor
   class VisionPreProcessor: public PreProcessor<sensor_msgs::Image, cv::Mat>
   {
     public:
-      VisionPreProcessor(NodeHandlePtr nhPtr, 
-        void (AbstractHandler<sensor_msgs::Image>::*callback)(const SubTypeConstPtr&), 
-        AbstractHandler<sensor_msgs::Image>* handler);
+      explicit VisionPreProcessor(AbstractHandler<sensor_msgs::Image>* handler);
       virtual ~VisionPreProcessor();
       
       virtual void process();

@@ -40,10 +40,7 @@
 
 namespace sensor_processor
 {
-  VisionPreProcessor::VisionPreProcessor(NodeHandlePtr nhPtr, 
-    void (AbstractHandler<sensor_msgs::Image>::*callback)(const SubTypeConstPtr&), 
-    AbstractHandler<sensor_msgs::Image>* handler): 
-    PreProcessor(nhPtr, callback, handler)
+  VisionPreProcessor::VisionPreProcessor(AbstractHandler<sensor_msgs::Image>* handler): PreProcessor(handler)
   {
   }
   
