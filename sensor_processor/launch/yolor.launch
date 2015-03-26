@@ -1,0 +1,8 @@
+<launch>
+  <include file="$(find state_manager)/launch/stateManager.launch" />
+  <node pkg="sensor_processor" type="yolor" name="testing_processor_interface" />
+  <rosparam file="$(find sensor_processor)/config/sensor_processor_topics.yaml"
+      command="load" ns="sensor_processor/yolor"/>
+  <test test-name="SensorProcessorTester" pkg="pandora_testing_tools"
+      type="test_dummy_node.py" />
+</launch>

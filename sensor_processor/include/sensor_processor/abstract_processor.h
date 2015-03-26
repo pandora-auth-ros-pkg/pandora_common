@@ -46,12 +46,11 @@ namespace sensor_processor
   class AbstractProcessor
   {
     public:
-      AbstractProcessor(){}
-      virtual ~AbstractProcessor(){}
-
-      virtual void process() = 0;
+      virtual bool
+        process() = 0;
   };
+
   typedef boost::shared_ptr<AbstractProcessor> AbstractProcessorPtr;
-  
 }  // namespace sensor_processor
+
 #endif  // SENSOR_PROCESSOR_ABSTRACT_PROCESSOR_H

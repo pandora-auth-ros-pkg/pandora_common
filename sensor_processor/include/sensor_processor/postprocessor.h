@@ -39,40 +39,33 @@
 #ifndef SENSOR_PROCESSOR_POSTPROCESSOR_H
 #define SENSOR_PROCESSOR_POSTPROCESSOR_H
 
-#include <ros/ros.h>
-#include "sensor_processor/abstract_processor.h"
+#include <boost/shared_ptr.hpp>
+#include "sensor_processor/general_processor.h"
+#include "sensor_processor/abstract_handler.h"
 
 namespace sensor_processor
 {
-  template <class ProcOutput, class PubType>
-  class PostProcessor : public AbstractProcessor
+  template <class Input, class Output>
+  class PostProcessor : public GeneralProcessor<Input, Output>
   {
-    public:
-      typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
-      typedef boost::shared_ptr<PubType> PubTypePtr;
-      typedef boost::shared_ptr<ProcOutput const> ProcOutputConstPtr;
+  private:
+    typedef boost::shared_ptr<Input const> InputConstPtr;
+    typedef boost::shared_ptr<Output> OutputPtr;
+  public:
+    PostProcessor(const std::string& ns, AbstractHandler* handler) :
+      GeneralProcessor<Input, Output>(ns, handler) {}
+    virtual
+      ~PostProcessor() {}
 
-      explicit PostProcessor(const NodeHandlePtr& nhPtr);
-      virtual ~PostProcessor();
-      
-      // void setSubscriberInput(const SubTypeConstPtr subTypePtr);
-      void setProcOutput(const ProcOutputConstPtr& input);
-      void getPubOutput(const PubTypePtr& result);
-      virtual void process();
+    virtual bool
+      postProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
-    protected:
-      std::string outputTopic_;
-      
-      NodeHandlePtr nhPtr_;
-      ros::Publisher nPublisher_;
-      ProcOutputConstPtr procOutput_;
-      // SubscribedTypePtr nodeInput_;
-      PubType pubType_;
-      
-      void getTopicName();
+    bool
+      process()
+      {
+        return postProcess(this->input_, this->output_);
+      }
   };
 }  // namespace sensor_processor
-
-#include "sensor_processor/postprocessor.hxx"
 
 #endif  // SENSOR_PROCESSOR_POSTPROCESSOR_H

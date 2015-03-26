@@ -1,3 +1,2 @@
-subscibed_topic:
-
-published_topic:
+subscribed_topic: /test/listen
+published_topic: /test/answer

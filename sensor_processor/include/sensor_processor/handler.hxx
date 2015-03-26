@@ -36,48 +36,139 @@
 * Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
 *********************************************************************/
 
+#ifndef SENSOR_PROCESSOR_HANDLER_HXX
+#define SENSOR_PROCESSOR_HANDLER_HXX
+
+#include <string>
+#include <boost/algorithm/string.hpp>
+
+#include "sensor_processor/ProcessorLogInfo.h"
+#include "sensor_processor/processor.h"
+#include "sensor_processor/preprocessor.h"
+#include "sensor_processor/postprocessor.h"
 #include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
   template <class SubType, class ProcInput, class ProcOutput, class PubType>
-  Handler<SubType, ProcInput, ProcOutput, PubType>::Handler()
-  {
-    currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
-    previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
+    Handler<SubType, ProcInput, ProcOutput, PubType>::
+    Handler(const std::string& ns)
+    {
+      nhPtr_.reset( new ros::NodeHandle(ns) );
+      name_ = boost::to_upper_copy(ros::this_node::getName());
+      currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
+      previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
-    processorInputPtr_.reset( new ProcInput() );
-    processorOutputPtr_.reset( new ProcOutput() );
+      processorInputPtr_.reset( new ProcInput() );
+      processorOutputPtr_.reset( new ProcOutput() );
+      processorResultPtr_.reset( new PubType() );
 
-    StateClient::clientInitialize();
-    nodeNowOn_ = false;
-    ROS_INFO("[Handler] Initialized");
-  }
+      nhPtr_->param<std::string>("op_report_topic", reportTopicName_,
+          ros::this_node::getName() + "/processor_log");
+      operationReport_ = nhPtr_->advertise<ProcessorLogInfo>(
+          reportTopicName_, 10);
+
+      if (!nhPtr_->getParam("subscribed_topic", inputTopic_))
+      {
+        ROS_FATAL("subscribed_topic param not found");
+        ROS_BREAK();
+      }
+      nSubscriber_ = nhPtr_->subscribe(inputTopic_, 1,
+          &Handler::completeProcessCallback, this);
+
+      if (!nhPtr_->getParam("published_topic", outputTopic_))
+      {
+        ROS_FATAL("published_topic param not found");
+        ROS_BREAK();
+      }
+      nPublisher_ = nhPtr_->advertise<PubType>(outputTopic_, 1);
+
+      clientInitialize();
+      ROS_INFO("[%s] Handler initialized", name_.c_str());
+    }
 
   template <class SubType, class ProcInput, class ProcOutput, class PubType>
-  Handler<SubType, ProcInput, ProcOutput, PubType>::~Handler()
-  {
-    ROS_INFO("[Handler] Terminated");
-  }
+    Handler<SubType, ProcInput, ProcOutput, PubType>::
+    ~Handler()
+    {
+      ROS_INFO("[%s] Handler terminated", name_.c_str());
+    }
 
   template <class SubType, class ProcInput, class ProcOutput, class PubType>
-  void Handler<SubType, ProcInput, ProcOutput, PubType>::
-    completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr)
-  {
-    PreProcessorPtr preProcPtr(boost::dynamic_pointer_cast< PreProcessor< SubType, ProcInput> >(preProcPtr_));
-    preProcPtr->setSubInput(subscribedTypePtr);
-    preProcPtr->process();
-    preProcPtr->getProcInput(processorInputPtr_);
-    
-    ProcessorPtr processorPtr(boost::dynamic_pointer_cast< Processor< ProcInput, ProcOutput> >(processorPtr_));
-    processorPtr->setInput(processorInputPtr_);
-    processorPtr->process();
-    processorPtr->getResult(processorOutputPtr_);
-    
-    PostProcessorPtr postProcPtr(boost::dynamic_pointer_cast< PostProcessor< ProcOutput, PubType> >(postProcPtr_));
-    // postProcPtr->setSubscriberInput(subscribedTypePtr);
-    postProcPtr->setProcOutput(processorOutputPtr_);
-    postProcPtr->process();
-    // postProcPtr->getPubOutput(); ???????
-  }
+    ros::NodeHandlePtr
+    Handler<SubType, ProcInput, ProcOutput, PubType>::shareNodeHandle()
+    {
+      return nhPtr_;
+    }
+
+  template <class SubType, class ProcInput, class ProcOutput, class PubType>
+    void
+    Handler<SubType, ProcInput, ProcOutput, PubType>::
+    completeProcessCallback(
+        const boost::shared_ptr<SubType const>& subscribedTypePtr)
+    {
+      ROS_INFO("Received msg!");
+      bool success = true;  //!< checker for success of operations
+
+      // First a preprocessing operation happens
+      boost::shared_ptr< PreProcessor<SubType, ProcInput> > preProcPtr(
+          boost::dynamic_pointer_cast< PreProcessor<SubType, ProcInput> >(preProcPtr_));
+      preProcPtr->setInputPtr(subscribedTypePtr);
+      preProcPtr->setOutputPtr(processorInputPtr_);
+      // try {
+        success = preProcPtr->process();
+      // }
+      // catch (ProcessorException& e) {
+        // completeProcessFinish(false, e.what());
+        // return;
+      // }
+      if (!success) {
+        completeProcessFinish(success, "PreProcessor");
+        return;
+      }
+
+      boost::shared_ptr< Processor< ProcInput, ProcOutput> > processorPtr(
+          boost::dynamic_pointer_cast< Processor<ProcInput, ProcOutput> >(processorPtr_));
+      processorPtr->setInputPtr(processorInputPtr_);
+      processorPtr->setOutputPtr(processorOutputPtr_);
+      // try {
+        success = processorPtr->process();
+      // }
+      // catch (ProcessorException& e) {
+        // completeProcessFinish(false, e.what());
+        // return;
+      // }
+      if (!success) {
+        completeProcessFinish(success, "Processor");
+        return;
+      }
+
+      boost::shared_ptr< PostProcessor< ProcOutput, PubType> > postProcPtr(
+          boost::dynamic_pointer_cast< PostProcessor<ProcOutput, PubType> >(postProcPtr_));
+      postProcPtr->setInputPtr(processorOutputPtr_);
+      postProcPtr->setOutputPtr(processorResultPtr_);
+      // try {
+        success = postProcPtr->process();
+      // }
+      // catch (ProcessorException& e) {
+        // completeProcessFinish(false, e.what());
+        // return;
+      // }
+      if (success)
+        nPublisher_.publish(*processorResultPtr_);
+      completeProcessFinish(success, "Complete");
+    }
+
+  template <class SubType, class ProcInput, class ProcOutput, class PubType>
+    void
+    Handler<SubType, ProcInput, ProcOutput, PubType>::
+    completeProcessFinish(bool success, const std::string& logInfo)
+    {
+      ProcessorLogInfo processorLogInfo;
+      processorLogInfo.success = success;
+      processorLogInfo.logInfo = logInfo;
+      operationReport_.publish(processorLogInfo);
+    }
 }  // namespace sensor_processor
+
+#endif  // SENSOR_PROCESSOR_HANDLER_HXX

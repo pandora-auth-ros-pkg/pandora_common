@@ -39,50 +39,61 @@
 #ifndef SENSOR_PROCESSOR_HANDLER_H
 #define SENSOR_PROCESSOR_HANDLER_H
 
+#include <boost/shared_ptr.hpp>
 #include <ros/ros.h>
+
 #include "sensor_processor/abstract_handler.h"
-#include "sensor_processor/processor.h"
-#include "sensor_processor/preprocessor.h"
-#include "sensor_processor/postprocessor.h"
+#include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
 {
   template <class SubType, class ProcInput, class ProcOutput, class PubType>
-  class Handler: public AbstractHandler<SubType>
+  class Handler : public AbstractHandler
   {
-    public:
-      typedef boost::shared_ptr<ros::NodeHandle> NodeHandlePtr;
-      typedef boost::shared_ptr<SubType const> SubTypeConstPtr;
-      typedef boost::shared_ptr<ProcInput> ProcInputPtr;
-      typedef boost::shared_ptr<ProcOutput> ProcOutputPtr;
-      typedef boost::shared_ptr<PubType> PubTypePtr;
-      
-      typedef boost::shared_ptr< PreProcessor<SubType, ProcInput> > PreProcessorPtr;
-      typedef boost::shared_ptr< Processor<ProcInput, ProcOutput> > ProcessorPtr;
-      typedef boost::shared_ptr< PostProcessor<ProcOutput, PubType> > PostProcessorPtr;
+  public:
+    Handler(const std::string& ns);
+    virtual
+      ~Handler();
 
-      Handler();
-      virtual ~Handler();
+    ros::NodeHandlePtr shareNodeHandle();
 
-      virtual void completeProcessCallback(const SubTypeConstPtr& subscribedTypePtr);
+    void completeProcessCallback(
+          const boost::shared_ptr<SubType const>& subscribedTypePtr);
 
-    protected:
-      virtual void startTransition(int newState);
+  protected:
+    virtual void
+      startTransition(int newState) {}
+    virtual void
+      completeTransition() {}
 
-    protected:
-      NodeHandlePtr nhPtr_;
+  private:
+    void
+      completeProcessFinish(bool success, const std::string& logInfo);
 
-      AbstractProcessorPtr preProcPtr_;
-      AbstractProcessorPtr processorPtr_;
-      AbstractProcessorPtr postProcPtr_;
+  protected:
+    AbstractProcessorPtr preProcPtr_;
+    AbstractProcessorPtr processorPtr_;
+    AbstractProcessorPtr postProcPtr_;
 
-      // non-thread safe
-      ProcInputPtr processorInputPtr_;
-      ProcOutputPtr processorOutputPtr_;
+    int currentState_;
+    int previousState_;
 
-      bool nodeNowOn_;
-      int currentState_;
-      int previousState_;
+  private:
+    ros::NodeHandlePtr nhPtr_;
+    std::string name_;
+
+    std::string inputTopic_;
+    ros::Subscriber nSubscriber_;
+
+    std::string outputTopic_;
+    ros::Publisher nPublisher_;
+
+    ros::Publisher operationReport_;
+    std::string reportTopicName_;
+
+    boost::shared_ptr<ProcInput> processorInputPtr_;
+    boost::shared_ptr<ProcOutput> processorOutputPtr_;
+    boost::shared_ptr<PubType> processorResultPtr_;
   };
 }  // namespace sensor_processor
 

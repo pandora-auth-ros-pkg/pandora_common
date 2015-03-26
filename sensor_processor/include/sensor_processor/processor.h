@@ -40,29 +40,32 @@
 #define SENSOR_PROCESSOR_PROCESSOR_H
 
 #include <boost/shared_ptr.hpp>
-#include "sensor_processor/abstract_processor.h"
+#include "sensor_processor/general_processor.h"
+#include "sensor_processor/abstract_handler.h"
 
 namespace sensor_processor
 {
-  template <class ProcInput, class ProcOutput>
-  class Processor: public AbstractProcessor
+  template <class Input, class Output>
+  class Processor : public GeneralProcessor<Input, Output>
   {
-    public:
-      typedef boost::shared_ptr<ProcInput const> ProcInputConstPtr;
-      typedef boost::shared_ptr<ProcOutput> ProcOutputPtr;
+  private:
+    typedef boost::shared_ptr<Input const> InputConstPtr;
+    typedef boost::shared_ptr<Output> OutputPtr;
+  public:
+    Processor(const std::string& ns, AbstractHandler* handler) :
+      GeneralProcessor<Input, Output>(ns, handler) {}
+    virtual
+      ~Processor() {}
 
-      Processor();
-      virtual ~Processor();
+    virtual bool
+      process(const InputConstPtr& input, const OutputPtr& output) = 0;
 
-      void setInput(const ProcInputConstPtr& input);
-      void getResult(const ProcOutputPtr& output);
-
-    private:
-      ProcInputConstPtr input_;
-      ProcOutput output_;
+    bool
+      process()
+      {
+        return process(this->input_, this->output_);
+      }
   };
 }  // namespace sensor_processor
-
-#include "sensor_processor/processor.hxx"
 
 #endif  // SENSOR_PROCESSOR_PROCESSOR_H
