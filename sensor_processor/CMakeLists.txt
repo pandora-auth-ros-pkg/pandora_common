@@ -41,66 +41,38 @@ catkin_package(
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-# add libraries, dependencies and links to them
-  
-# add_library(vision_preprocessor src/vision_preprocessor.cpp)
-# target_link_libraries(vision_preprocessor
-  # ${catkin_LIBRARIES}
-  # )
-  
-# add_library(qr_postprocessor src/qr_postprocessor.cpp)
-# target_link_libraries(qr_postprocessor
-  # ${catkin_LIBRARIES}
-  # )
-  
-# add_library(vision_handler src/vision_handler.cpp)
-# target_link_libraries(vision_handler
+if(CATKIN_ENABLE_TESTING)
 
-# add_library(vision_preprocessor src/vision_preprocessor.cpp)
-# target_link_libraries(vision_preprocessor
-  # ${catkin_LIBRARIES}
-  # )
+  add_library(dummy_preprocessor src/dummy_preprocessor.cpp)
+  target_link_libraries(dummy_preprocessor
+    ${catkin_LIBRARIES}
+    )
+  add_library(dummy_processor src/dummy_processor.cpp)
+  target_link_libraries(dummy_processor
+    ${catkin_LIBRARIES}
+    )
+  add_library(dummy_postprocessor src/dummy_postprocessor.cpp)
+  target_link_libraries(dummy_postprocessor
+    ${catkin_LIBRARIES}
+    )
+  add_library(dummy_handler src/dummy_handler.cpp)
+  target_link_libraries(dummy_handler
+    ${catkin_LIBRARIES}
+    dummy_preprocessor
+    dummy_processor
+    dummy_postprocessor
+    )
 
-#~ add_library(vision_postprocessor src/vision_postprocessor.cpp)
-#~ target_link_libraries(vision_postprocessor
-  #~ ${catkin_LIBRARIES}
-  #~ )
+  add_executable(dummy_processor_node src/dummy_processor_node.cpp)
+  target_link_libraries(dummy_processor_node
+    ${catkin_LIBRARIES}
+    dummy_handler
+    )
 
-# add_library(vision_handler src/vision_handler.cpp)
-# target_link_libraries(vision_handler
-  # ${catkin_LIBRARIES}
-  # vision_preprocessor
-  # # vision_postprocessor
-  # )
+  find_package(rostest REQUIRED)
+  find_package(pandora_testing_tools REQUIRED)
 
-add_library(dummy_preprocessor src/dummy_preprocessor.cpp)
-target_link_libraries(dummy_preprocessor
-  ${catkin_LIBRARIES}
-  )
-add_library(dummy_processor src/dummy_processor.cpp)
-target_link_libraries(dummy_processor
-  ${catkin_LIBRARIES}
-  )
-add_library(dummy_postprocessor src/dummy_postprocessor.cpp)
-target_link_libraries(dummy_postprocessor
->>>>>>> Fixes sensor_processor. Adds processor_log.
-  ${catkin_LIBRARIES}
-  )
-add_library(dummy_handler src/dummy_handler.cpp)
-target_link_libraries(dummy_handler
-  ${catkin_LIBRARIES}
-  dummy_preprocessor
-  dummy_processor
-  dummy_postprocessor
-  )
+  add_rostest(launch/sensor_processor_node.test)
 
-# add executables, dependencies and links to them
-add_executable(yolor src/yolor.cpp)
-target_link_libraries(yolor
-  ${catkin_LIBRARIES}
-  dummy_handler
-  )
+endif()
 
-# add roslint
-
-# add test cmake

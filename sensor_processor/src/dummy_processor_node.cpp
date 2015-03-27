@@ -41,9 +41,9 @@
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "yolor", ros::init_options::NoSigintHandler);
-  sensor_processor::DummyHandler dummyHandler("/sensor_processor/yolor");
-  ROS_INFO("[SENSOR_PROCESSOR] Beginning Yolor");
+  ros::init(argc, argv, "dummy_processor", ros::init_options::NoSigintHandler);
+  sensor_processor::DummyHandler dummyHandler("/sensor_processor/dummy_processor_node");
+  ROS_INFO("[SENSOR_PROCESSOR] Beginning Dummy Processor Node");
   ros::spin();
   return 0;
 }
