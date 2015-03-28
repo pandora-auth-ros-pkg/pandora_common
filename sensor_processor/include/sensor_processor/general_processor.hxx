@@ -33,7 +33,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  * Authors:
- *   Author Name <author's email>
+ *   Tsirigotis Christos <tsirif@gmail.com>
+ *   Chatzieleftheriou Eirini <eirini.ch0@gmail.com>
  *********************************************************************/
 
 #ifndef SENSOR_PROCESSOR_GENERAL_PROCESSOR_HXX
@@ -47,6 +48,7 @@ namespace sensor_processor
     {
       this->processorNh_.reset( new ros::NodeHandle(ns) );
       this->publicNh_ = handler->shareNodeHandle();
+      this->name_ = boost::to_upper_copy(ros::this_node::getName());
     }
 
   template <class Input, class Output>
@@ -85,6 +87,14 @@ namespace sensor_processor
     accessProcessorNh()
     {
       return this->processorNh_;
+    }
+
+  template <class Input, class Output>
+    ros::NodeHandlePtr
+    GeneralProcessor<Input, Output>::
+    getName()
+    {
+      return this->name_;
     }
 }  // namespace sensor_processor
 

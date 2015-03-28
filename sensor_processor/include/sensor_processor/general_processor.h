@@ -33,7 +33,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *
  * Authors:
- *    <author's email>
+ *   Tsirigotis Christos <tsirif@gmail.com>
  *********************************************************************/
 
 #ifndef SENSOR_PROCESSOR_GENERAL_PROCESSOR_H
@@ -64,6 +64,7 @@ namespace sensor_processor
   protected:
     ros::NodeHandlePtr accessPublicNh();
     ros::NodeHandlePtr accessProcessorNh();
+    std::string getName();
 
   protected:
     boost::shared_ptr<Input const> input_;
@@ -71,6 +72,7 @@ namespace sensor_processor
 
     ros::NodeHandlePtr processorNh_;
     ros::NodeHandlePtr publicNh_;
+    std::string name_;
   };
 }  // namespace sensor_processor
 
