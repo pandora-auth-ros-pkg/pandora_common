@@ -40,6 +40,11 @@
 #ifndef SENSOR_PROCESSOR_GENERAL_PROCESSOR_HXX
 #define SENSOR_PROCESSOR_GENERAL_PROCESSOR_HXX
 
+#include <string>
+#include <boost/algorithm/string.hpp>
+
+#include "sensor_processor/abstract_handler.h"
+
 namespace sensor_processor
 {
   template <class Input, class Output>
@@ -90,7 +95,7 @@ namespace sensor_processor
     }
 
   template <class Input, class Output>
-    ros::NodeHandlePtr
+    std::string
     GeneralProcessor<Input, Output>::
     getName()
     {
