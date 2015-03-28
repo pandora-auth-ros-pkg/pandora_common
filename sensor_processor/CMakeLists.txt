@@ -5,13 +5,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   message_generation
   std_msgs
-  cv_bridge
-  urdf
-  sensor_msgs
   state_manager
   state_manager_msgs
-  pandora_common_msgs
-  pandora_vision_msgs
   roslint
   )
 
@@ -28,13 +23,8 @@ catkin_package(
     roscpp
     message_runtime
     std_msgs
-    cv_bridge
-    urdf
-    sensor_msgs
     state_manager
     state_manager_msgs
-    pandora_common_msgs
-    pandora_vision_msgs
   INCLUDE_DIRS
     include
   )
@@ -42,6 +32,9 @@ catkin_package(
 include_directories(include ${catkin_INCLUDE_DIRS})
 
 if(CATKIN_ENABLE_TESTING)
+
+  find_package(rostest REQUIRED)
+  find_package(pandora_testing_tools REQUIRED)
 
   add_library(dummy_preprocessor src/dummy_preprocessor.cpp)
   target_link_libraries(dummy_preprocessor
