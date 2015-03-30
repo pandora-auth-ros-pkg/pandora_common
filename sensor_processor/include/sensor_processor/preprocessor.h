@@ -46,7 +46,7 @@
 
 namespace sensor_processor
 {
-  template <typename Input, typename Output>
+  template <class Input, class Output>
   class PreProcessor : public GeneralProcessor<Input, Output>
   {
   private:

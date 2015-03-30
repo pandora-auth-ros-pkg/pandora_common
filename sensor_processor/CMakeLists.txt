@@ -49,6 +49,10 @@ if(CATKIN_ENABLE_TESTING)
     ${catkin_LIBRARIES}
     )
   add_library(dummy_handler src/dummy_handler.cpp)
+  add_dependencies(dummy_handler
+    ${catkin_EXPORTED_TARGETS}
+    ${${PROJECT_NAME}_EXPORTED_TARGETS}
+    )
   target_link_libraries(dummy_handler
     ${catkin_LIBRARIES}
     dummy_preprocessor
