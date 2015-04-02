@@ -83,14 +83,9 @@ namespace sensor_processor
     ros::NodeHandlePtr nhPtr_;
     std::string name_;
 
-    std::string inputTopic_;
-    ros::Subscriber nSubscriber_;
-
-    std::string outputTopic_;
+    std::vector<ros::Subscriber> nSubscribers_;
     ros::Publisher nPublisher_;
-
     ros::Publisher operationReport_;
-    std::string reportTopicName_;
 
     boost::shared_ptr<ProcInput> processorInputPtr_;
     boost::shared_ptr<ProcOutput> processorOutputPtr_;

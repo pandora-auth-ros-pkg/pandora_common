@@ -64,26 +64,34 @@ namespace sensor_processor
       processorInputPtr_.reset( new ProcInput() );
       processorOutputPtr_.reset( new ProcOutput() );
       processorResultPtr_.reset( new PubType() );
-
-      nhPtr_->param<std::string>("op_report_topic", reportTopicName_,
+      
+      std::string outputTopic;
+      std::string reportTopicName;
+      
+      nhPtr_->param<std::string>("op_report_topic", reportTopicName,
           ros::this_node::getName() + "/processor_log");
       operationReport_ = nhPtr_->advertise<ProcessorLogInfo>(
-          reportTopicName_, 10);
-
-      if (!nhPtr_->getParam("subscribed_topic", inputTopic_))
+          reportTopicName, 10);
+      
+      XmlRpc::XmlRpcValue inputTopics;
+      if (!nhPtr_->getParam("subscribed_topic", inputTopics))
       {
         ROS_FATAL("subscribed_topic param not found");
         ROS_BREAK();
       }
-      nSubscriber_ = nhPtr_->subscribe(inputTopic_, 1,
-          &Handler::completeProcessCallback, this);
+      ROS_ASSERT(inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray);
+      for (int ii = 0; ii < inputTopics.size(); ii++)
+      {
+        ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
+        nSubscribers_.push_back(nhPtr_->subscribe(inputTopics[ii], 1, &Handler::completeProcessCallback, this));
+      }
 
-      if (!nhPtr_->getParam("published_topic", outputTopic_))
+      if (!nhPtr_->getParam("published_topic", outputTopic))
       {
         ROS_FATAL("published_topic param not found");
         ROS_BREAK();
       }
-      nPublisher_ = nhPtr_->advertise<PubType>(outputTopic_, 1);
+      nPublisher_ = nhPtr_->advertise<PubType>(outputTopic, 1);
 
       clientInitialize();
       ROS_INFO("[%s] Handler initialized", name_.c_str());
