@@ -31,77 +31,102 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-# Author: Chris Zalidis <zalidis@gmail.com>
+# Authors: Chris Zalidis <zalidis@gmail.com>
+#          Konstantinos Sideris <siderisk@auth.gr>
 
 import rospy
-from state_manager_msgs.msg import RobotModeMsg
+from rospy import Publisher, Subscriber, loginfo, logerr
+from actionlib import SimpleActionClient as ActionClient
+from state_manager_msgs.msg import RobotModeMsg, RobotModeAction, RobotModeGoal
 from state_manager_msgs.srv import RegisterNodeSrv, RegisterNodeSrvRequest
+
 
 class StateClient(object):
 
     def __init__(self, do_register=True):
         self._name = rospy.get_name()
-        self._acknowledge_publisher = rospy.Publisher('/robot/state/server', RobotModeMsg, latch=True, queue_size=5)
-        self._state_subscriber = rospy.Subscriber('/robot/state/clients', RobotModeMsg, self.server_state_information, queue_size=10)
+        self._acknowledge_publisher = Publisher('/robot/state/server',
+                                                RobotModeMsg, latch=True,
+                                                queue_size=5)
+        self._state_subscriber = Subscriber('/robot/state/clients',
+                                            RobotModeMsg,
+                                            self.server_state_information,
+                                            queue_size=10)
+        self._state_changer = ActionClient('/robot/state/change', RobotModeAction)
         if do_register:
             self.client_register()
-  
+
     def client_register(self):
         rospy.wait_for_service('/robot/state/register')
         self._register_service_client = rospy.ServiceProxy('/robot/state/register', RegisterNodeSrv)
-    
-        req = RegisterNodeSrvRequest();
+
+        req = RegisterNodeSrvRequest()
         req.nodeName = self._name
         req.type = RegisterNodeSrvRequest.TYPE_STARTED
         try:
             self._register_service_client(req)
         except rospy.ServiceException:
-            rospy.logerr("[%s] Failed to register node. Retrying...", self._name)
-  
+            logerr("[%s] Failed to register node. Retrying...", self._name)
+
     def client_initialize(self):
         rospy.wait_for_service('/robot/state/register')
         self._register_service_client = rospy.ServiceProxy('/robot/state/register', RegisterNodeSrv)
-    
-        req = RegisterNodeSrvRequest();
+
+        req = RegisterNodeSrvRequest()
         req.nodeName = self._name
         req.type = RegisterNodeSrvRequest.TYPE_INITIALIZED
         try:
             self._register_service_client(req)
         except rospy.ServiceException:
-            rospy.logerr("[%s] Failed to register node. Retrying...", self._name)
-  
+            logerr("[%s] Failed to register node. Retrying...", self._name)
+
     def start_transition(self, state):
-        rospy.loginfo("[%s] Starting Transition to state %i", self._name, state)
+        loginfo("[%s] Starting Transition to state %i", self._name, state)
         self.transition_complete(state)
-  
+
     def transition_complete(self, state):
-        rospy.loginfo("[%s] Node Transition to state %i Completed", self._name, state)
+        loginfo("[%s] Node Transition to state %i Completed", self._name, state)
         msg = RobotModeMsg()
         msg.nodeName = self._name
         msg.mode = state
         msg.type = RobotModeMsg.TYPE_ACK
-    
+
         self._acknowledge_publisher.publish(msg)
-  
+
     def complete_transition(self):
-        rospy.loginfo("[%s] System Transitioned, starting work", self._name)
-  
+        loginfo("[%s] System Transitioned, starting work", self._name)
+
     def transition_to_state(self, state):
-        rospy.loginfo("[%s] Requesting transition to state %i", self._name, state)
+        loginfo("[%s] Requesting transition to state %i", self._name, state)
         msg = RobotModeMsg()
         msg.nodeName = self._name
         msg.mode = state
         msg.type = RobotModeMsg.TYPE_REQUEST
-    
+
         self._acknowledge_publisher.publish(msg)
-  
+
+    def change_state_and_wait(self, state):
+        """ Changes the state and waits for all the clients to change.
+
+        :param :state A state to transition to.
+        """
+        msg = RobotModeMsg()
+        msg.mode = state
+        msg.nodeName = self._name
+        msg.type = RobotModeMsg.TYPE_REQUEST
+        goal = RobotModeGoal(modeMsg=msg)
+
+        self._state_changer.wait_for_server()
+        self._state_changer.send_goal(goal)
+
+        return self._state_changer.wait_for_result()
+
     def server_state_information(self, msg):
-        rospy.loginfo("[%s] Received new information from state server", self._name)
-  
+        loginfo("[%s] Received new information from state server", self._name)
+
         if msg.type == RobotModeMsg.TYPE_TRANSITION:
             self.start_transition(msg.mode)
         elif msg.type == RobotModeMsg.TYPE_START:
             self.complete_transition()
         else:
-            rospy.logerr("[%s] StateClient received a new state command, that is not understandable", self._name)
-  
+            logerr("[%s] StateClient received a new state command, that is not understandable", self._name)
