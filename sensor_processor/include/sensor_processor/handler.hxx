@@ -2,7 +2,7 @@
  *
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+ *  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -52,81 +52,48 @@
 
 namespace sensor_processor
 {
-  template <class SubType, class ProcInput, class ProcOutput, class PubType>
-    Handler<SubType, ProcInput, ProcOutput, PubType>::
-    Handler(const std::string& ns)
+    Handler::Handler(const std::string& ns)
     {
       nhPtr_.reset( new ros::NodeHandle(ns) );
       name_ = boost::to_upper_copy(ros::this_node::getName());
       currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
       previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
-      processorInputPtr_.reset( new ProcInput() );
-      processorOutputPtr_.reset( new ProcOutput() );
-      processorResultPtr_.reset( new PubType() );
+      processorInputPtr_.reset( new boost::any() );
+      processorOutputPtr_.reset( new boost::any() );
+      processorResultPtr_.reset( new boost::any() );
       
-      std::string outputTopic;
       std::string reportTopicName;
-      
+
       nhPtr_->param<std::string>("op_report_topic", reportTopicName,
           ros::this_node::getName() + "/processor_log");
       operationReport_ = nhPtr_->advertise<ProcessorLogInfo>(
           reportTopicName, 10);
-      
-      XmlRpc::XmlRpcValue inputTopics;
-      if (!nhPtr_->getParam("subscribed_topic", inputTopics))
-      {
-        ROS_FATAL("subscribed_topic param not found");
-        ROS_BREAK();
-      }
-      ROS_ASSERT(inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray);
-      for (int ii = 0; ii < inputTopics.size(); ii++)
-      {
-        ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
-        nSubscribers_.push_back(nhPtr_->subscribe(inputTopics[ii], 1, &Handler::completeProcessCallback, this));
-      }
-
-      if (!nhPtr_->getParam("published_topic", outputTopic))
-      {
-        ROS_FATAL("published_topic param not found");
-        ROS_BREAK();
-      }
-      nPublisher_ = nhPtr_->advertise<PubType>(outputTopic, 1);
 
       clientInitialize();
       ROS_INFO("[%s] Handler initialized", name_.c_str());
     }
 
-  template <class SubType, class ProcInput, class ProcOutput, class PubType>
-    Handler<SubType, ProcInput, ProcOutput, PubType>::
-    ~Handler()
+    Handler::~Handler()
     {
       ROS_INFO("[%s] Handler terminated", name_.c_str());
     }
 
-  template <class SubType, class ProcInput, class ProcOutput, class PubType>
-    ros::NodeHandlePtr
-    Handler<SubType, ProcInput, ProcOutput, PubType>::shareNodeHandle()
+    ros::NodeHandlePtr Handler::shareNodeHandle()
     {
       return nhPtr_;
     }
-
-  template <class SubType, class ProcInput, class ProcOutput, class PubType>
-    void
-    Handler<SubType, ProcInput, ProcOutput, PubType>::
-    completeProcessCallback(
+    
+    template <class SubType>
+    void Handler::completeProcessCallback(
         const boost::shared_ptr<SubType const>& subscribedTypePtr)
     {
       ROS_INFO("Received msg!");
       bool success = true;  //!< checker for success of operations
 
       // First a preprocessing operation happens
-      boost::shared_ptr< PreProcessor<SubType, ProcInput> > preProcPtr(
-          boost::dynamic_pointer_cast< PreProcessor<SubType, ProcInput> >(preProcPtr_));
-      preProcPtr->setInputPtr(subscribedTypePtr);
-      preProcPtr->setOutputPtr(processorInputPtr_);
       try {
-        success = preProcPtr->process();
+        success = preProcPtr->process(subscribedTypePtr, processorInputPtr_);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());
@@ -137,12 +104,8 @@ namespace sensor_processor
         return;
       }
 
-      boost::shared_ptr< Processor< ProcInput, ProcOutput> > processorPtr(
-          boost::dynamic_pointer_cast< Processor<ProcInput, ProcOutput> >(processorPtr_));
-      processorPtr->setInputPtr(processorInputPtr_);
-      processorPtr->setOutputPtr(processorOutputPtr_);
       try {
-        success = processorPtr->process();
+        success = processorPtr->process(processorInputPtr_, processorOutputPtr_);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());
@@ -153,26 +116,17 @@ namespace sensor_processor
         return;
       }
 
-      boost::shared_ptr< PostProcessor< ProcOutput, PubType> > postProcPtr(
-          boost::dynamic_pointer_cast< PostProcessor<ProcOutput, PubType> >(postProcPtr_));
-      postProcPtr->setInputPtr(processorOutputPtr_);
-      postProcPtr->setOutputPtr(processorResultPtr_);
       try {
-        success = postProcPtr->process();
+        success = postProcPtr->process(processorOutputPtr_, processorResultPtr_);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());
         return;
       }
-      if (success)
-        nPublisher_.publish(*processorResultPtr_);
       completeProcessFinish(success, "Finished");
     }
 
-  template <class SubType, class ProcInput, class ProcOutput, class PubType>
-    void
-    Handler<SubType, ProcInput, ProcOutput, PubType>::
-    completeProcessFinish(bool success, const std::string& logInfo)
+    void Handler::completeProcessFinish(bool success, const std::string& logInfo)
     {
       ProcessorLogInfo processorLogInfo;
       processorLogInfo.success = success;

@@ -2,7 +2,7 @@
  *
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+ *  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,17 @@ namespace sensor_processor
     typedef boost::shared_ptr<Output> OutputPtr;
   public:
     PostProcessor(const std::string& ns, AbstractHandler* handler) :
-      GeneralProcessor<Input, Output>(ns, handler) {}
+      GeneralProcessor<Input, Output>(ns, handler) 
+    {
+      std::string outputTopic;
+      
+      if (!this->accessPublicNh()->getParam("published_topic", outputTopic))
+      {
+        ROS_FATAL("published_topic param not found");
+        ROS_BREAK();
+      }
+      nPublisher_ = this->accessPublicNh()->advertise<Output>(outputTopic, 1);
+    }
     virtual
       ~PostProcessor() {}
 
@@ -62,10 +72,20 @@ namespace sensor_processor
       postProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process()
+      process(const boost::shared_ptr<boost::any const> input, 
+        const boost::shared_ptr<boost::any> output)
       {
-        return postProcess(this->input_, this->output_);
+        InputConstPtr in = boost::any_cast<InputConstPtr>(input);
+        OutputPtr out = boost::any_cast<OutputPtr>(output);
+        
+        if (postProcess(in, out))
+        {
+          nPublisher_.publish(*out);
+        }
+        return postProcess(in, out);
       }
+  private:
+    ros::Publisher nPublisher_;
   };
 }  // namespace sensor_processor
 

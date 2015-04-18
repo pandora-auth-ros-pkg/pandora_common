@@ -42,14 +42,15 @@
 
 #include <boost/shared_ptr.hpp>
 #include <ros/ros.h>
+#include <ros/forwards.h>
 
+#include "state_manager/state_client.h"
 #include "sensor_processor/abstract_handler.h"
 #include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
 {
-  template <class SubType, class ProcInput, class ProcOutput, class PubType>
-  class Handler : public AbstractHandler
+  class Handler : public StateClient
   {
   public:
     Handler(const std::string& ns);
@@ -57,7 +58,8 @@ namespace sensor_processor
       ~Handler();
 
     ros::NodeHandlePtr shareNodeHandle();
-
+    
+    template <class SubType>
     void completeProcessCallback(
           const boost::shared_ptr<SubType const>& subscribedTypePtr);
 
@@ -83,13 +85,11 @@ namespace sensor_processor
     ros::NodeHandlePtr nhPtr_;
     std::string name_;
 
-    std::vector<ros::Subscriber> nSubscribers_;
-    ros::Publisher nPublisher_;
     ros::Publisher operationReport_;
 
-    boost::shared_ptr<ProcInput> processorInputPtr_;
-    boost::shared_ptr<ProcOutput> processorOutputPtr_;
-    boost::shared_ptr<PubType> processorResultPtr_;
+    boost::shared_ptr<boost::any> processorInputPtr_;
+    boost::shared_ptr<boost::any> processorOutputPtr_;
+    boost::shared_ptr<boost::any> processorResultPtr_;
   };
 }  // namespace sensor_processor
 

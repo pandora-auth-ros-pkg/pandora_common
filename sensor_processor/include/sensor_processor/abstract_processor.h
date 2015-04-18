@@ -40,6 +40,7 @@
 #ifndef SENSOR_PROCESSOR_ABSTRACT_PROCESSOR_H
 #define SENSOR_PROCESSOR_ABSTRACT_PROCESSOR_H
 
+#include <boost/any.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace sensor_processor
@@ -48,7 +49,8 @@ namespace sensor_processor
   {
     public:
       virtual bool
-        process() = 0;
+        process(const boost::shared_ptr<boost::any const> input, 
+        const boost::shared_ptr<boost::any> output) = 0;
   };
 
   typedef boost::shared_ptr<AbstractProcessor> AbstractProcessorPtr;

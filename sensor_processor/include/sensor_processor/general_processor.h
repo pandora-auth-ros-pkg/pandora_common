@@ -2,7 +2,7 @@
  *
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+ *  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -56,10 +56,9 @@ namespace sensor_processor
     virtual
       ~GeneralProcessor();
 
-    void
-      setInputPtr(const boost::shared_ptr<Input const>& input);
-    void
-      setOutputPtr(const boost::shared_ptr<Output>& output);
+    virtual bool
+      process(const boost::shared_ptr<boost::any const> input, 
+      const boost::shared_ptr<boost::any> output) = 0;
 
   protected:
     ros::NodeHandlePtr accessPublicNh();
@@ -67,9 +66,6 @@ namespace sensor_processor
     std::string getName();
 
   protected:
-    boost::shared_ptr<Input const> input_;
-    boost::shared_ptr<Output> output_;
-
     ros::NodeHandlePtr processorNh_;
     ros::NodeHandlePtr publicNh_;
     std::string name_;

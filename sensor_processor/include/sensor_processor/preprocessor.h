@@ -2,7 +2,7 @@
  *
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+ *  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,22 @@ namespace sensor_processor
     typedef boost::shared_ptr<Output> OutputPtr;
   public:
     PreProcessor(const std::string& ns, AbstractHandler* handler) :
-      GeneralProcessor<Input, Output>(ns, handler) {}
+      GeneralProcessor<Input, Output>(ns, handler) 
+    {
+      XmlRpc::XmlRpcValue inputTopics;
+      if (!this->accessPublicNh()->getParam("subscribed_topic", inputTopics))
+      {
+        ROS_FATAL("subscribed_topic param not found");
+        ROS_BREAK();
+      }
+      ROS_ASSERT(inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray);
+      for (int ii = 0; ii < inputTopics.size(); ii++)
+      {
+        ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
+        nSubscribers_.push_back(this->accessPublicNh()->subscribe(inputTopics[ii], 1, 
+          &Handler::completeProcessCallback, this));  // Handler??????????????????
+      }
+    }
     virtual
       ~PreProcessor() {}
 
@@ -62,10 +77,15 @@ namespace sensor_processor
       preProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process()
+      process(const boost::shared_ptr<boost::any const> input, 
+        const boost::shared_ptr<boost::any> output)
       {
-        return preProcess(this->input_, this->output_);
+        InputConstPtr in = boost::any_cast<InputConstPtr>(input);
+        OutputPtr out = boost::any_cast<OutputPtr>(output);
+        return preProcess(in, out);
       }
+  private:
+    std::vector<ros::Subscriber> nSubscribers_;
   };
 }  // namespace sensor_processor
 

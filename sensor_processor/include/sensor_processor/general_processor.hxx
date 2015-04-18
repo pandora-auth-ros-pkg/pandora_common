@@ -2,7 +2,7 @@
  *
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014, P.A.N.D.O.R.A. Team.
+ *  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -60,22 +60,6 @@ namespace sensor_processor
     GeneralProcessor<Input, Output>::
     ~GeneralProcessor()
     {
-    }
-
-  template <class Input, class Output>
-    void
-    GeneralProcessor<Input, Output>::
-    setInputPtr(const boost::shared_ptr<Input const>& input)
-    {
-      this->input_ = input;
-    }
-
-  template <class Input, class Output>
-    void
-    GeneralProcessor<Input, Output>::
-    setOutputPtr(const boost::shared_ptr<Output>& output)
-    {
-      this->output_ = output;
     }
 
   template <class Input, class Output>
