@@ -9,13 +9,14 @@ import actionlib
 import genpy
 from rosbag import Bag
 import message_filters
+import cv2
+from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 from std_msgs.msg import UInt8MultiArray
 from std_msgs.msg import String
 from pandora_testing_tools.msg import ReplayBagsAction
 from pandora_testing_tools.msg import ReplayBagsGoal
-import cv2
-from cv_bridge import CvBridge, CvBridgeError
+from pandora_testing_tools.srv import SyncAndSplitOrder, SyncAndSplitOrderResponse
 
 '''
 flir and kinect should have the same framerate
@@ -71,10 +72,6 @@ class SyncAndSplit(object):
 
         self.init_syncronizer()
 
-        self.init_rosbag("/test/bag_player",
-                self.testing_dataset_dir + '/' + self.testbag_name,
-                self.training_dataset_dir + '/' + self.trainbag_name)
-
         self.server = rospy.Service('order', SyncAndSplitOrder, self.service_callback)
 
     def setUp(self, dataset_dir):
@@ -97,6 +94,11 @@ class SyncAndSplit(object):
         if not os.path.isdir(self.thermal_train_dir):
             os.makedirs(self.thermal_train_dir)
 
+        self.init_rosbag("/test/bag_player",
+                self.testing_dataset_dir + '/' + self.testbag_name,
+                self.training_dataset_dir + '/' + self.trainbag_name)
+
+
     def init_syncronizer(self):
 
         self.rgb_sub = message_filters.Subscriber(self.rgb_topic, Image)
@@ -113,6 +115,8 @@ class SyncAndSplit(object):
         self.trainbag = Bag(trainbag_name, 'w')
         self.inbag_client = actionlib.SimpleActionClient(inbag_topic, ReplayBagsAction)
         self.inbag_client.wait_for_server()
+        self.inbag_goal = ReplayBagsGoal()
+        self.inbag_goal.start = True
 
     def service_callback(self, req):
 
@@ -122,8 +126,6 @@ class SyncAndSplit(object):
 
     def start(self):
 
-        self.inbag_goal = ReplayBagsGoal()
-        self.inbag_goal.start = True
         self.inbag_client.send_goal(self.inbag_goal)
         self.inbag_client.wait_for_result()
         # close outbag files
@@ -156,6 +158,6 @@ class SyncAndSplit(object):
 
 if __name__ == '__main__':
     from sys import argv
-    rospy.init_node("/sync_and_split", argv)
-    sync_and_split = SyncAndSplit('test.bag', 'train.bag', '.')
+    rospy.init_node("sync_and_split", argv, log_level=rospy.INFO)
+    sync_and_split = SyncAndSplit()
     rospy.spin()

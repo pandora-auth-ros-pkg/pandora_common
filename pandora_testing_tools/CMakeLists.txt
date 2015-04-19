@@ -26,8 +26,14 @@ add_action_files(
     ReplayBags.action
   )
 
+add_service_files(
+  FILES
+    SyncAndSplitOrder.srv
+  )
+
 generate_messages(
   DEPENDENCIES
+    std_msgs
     actionlib_msgs
   )
 

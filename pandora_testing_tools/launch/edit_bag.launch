@@ -2,9 +2,9 @@
 
   <arg name="bag" default="./real.bag" />
 
-  <node pkg="rosbag" type="play" name="player" output="screen"
-      args="--clock $(arg bag)" />
+  <node pkg="pandora_testing_tools" type="bag_player_for_tests" name="bag_player"
+    args=" --bags $(arg bag) --clock " output="screen" />
 
-  <node pkg="pandora_testing_tools" name="sync_and_split" output="screen" />
+  <node pkg="pandora_testing_tools" type="sync_and_split.py" name="sync_and_split" output="screen" />
 
 </launch>
