@@ -63,7 +63,7 @@ namespace sensor_processor
         ROS_FATAL("published_topic param not found");
         ROS_BREAK();
       }
-      nPublisher_ = this->accessPublicNh()->advertise<Output>(outputTopic, 1);
+      nPublisher_ = this->accessPublicNh()->template advertise<Output>(outputTopic, 1);
     }
     virtual
       ~PostProcessor() {}

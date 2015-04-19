@@ -87,4 +87,3 @@ if(CATKIN_ENABLE_TESTING)
   add_rostest(launch/sensor_processor_node.test)
 
 endif()
-
