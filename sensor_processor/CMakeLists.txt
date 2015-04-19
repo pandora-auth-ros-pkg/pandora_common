@@ -37,17 +37,32 @@ if(CATKIN_ENABLE_TESTING)
   find_package(pandora_testing_tools REQUIRED)
 
   add_library(dummy_preprocessor src/dummy_preprocessor.cpp)
+  add_dependencies(dummy_preprocessor
+    ${catkin_EXPORTED_TARGETS}
+    ${${PROJECT_NAME}_EXPORTED_TARGETS}
+    )
   target_link_libraries(dummy_preprocessor
     ${catkin_LIBRARIES}
     )
+    
   add_library(dummy_processor src/dummy_processor.cpp)
+  add_dependencies(dummy_processor
+    ${catkin_EXPORTED_TARGETS}
+    ${${PROJECT_NAME}_EXPORTED_TARGETS}
+    )
   target_link_libraries(dummy_processor
     ${catkin_LIBRARIES}
     )
+    
   add_library(dummy_postprocessor src/dummy_postprocessor.cpp)
+  add_dependencies(dummy_postprocessor
+    ${catkin_EXPORTED_TARGETS}
+    ${${PROJECT_NAME}_EXPORTED_TARGETS}
+    )
   target_link_libraries(dummy_postprocessor
     ${catkin_LIBRARIES}
     )
+    
   add_library(dummy_handler src/dummy_handler.cpp)
   add_dependencies(dummy_handler
     ${catkin_EXPORTED_TARGETS}

@@ -41,7 +41,7 @@
 
 #include "std_msgs/Int32.h"
 #include "sensor_processor/postprocessor.h"
-#include "sensor_processor/abstract_handler.h"
+#include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
@@ -51,7 +51,7 @@ namespace sensor_processor
   class DummyPostProcessor : public PostProcessor<std_msgs::Int32, std_msgs::Int32>
   {
   public:
-    DummyPostProcessor (const std::string& ns, AbstractHandler* handler);
+    DummyPostProcessor (const std::string& ns, Handler* handler);
 
     virtual bool
       postProcess(const std_msgs::Int32ConstPtr& input, const std_msgs::Int32Ptr& output);

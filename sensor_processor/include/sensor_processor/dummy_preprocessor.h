@@ -41,7 +41,7 @@
 
 #include "std_msgs/Int32.h"
 #include "sensor_processor/preprocessor.h"
-#include "sensor_processor/abstract_handler.h"
+#include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
@@ -51,7 +51,7 @@ namespace sensor_processor
   class DummyPreProcessor : public PreProcessor<std_msgs::Int32, std_msgs::Int32>
   {
   public:
-    DummyPreProcessor (const std::string& ns, AbstractHandler* handler);
+    DummyPreProcessor (const std::string& ns, Handler* handler);
 
     virtual bool
       preProcess(const std_msgs::Int32ConstPtr& input, const std_msgs::Int32Ptr& output);

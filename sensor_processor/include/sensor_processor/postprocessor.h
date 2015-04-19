@@ -42,19 +42,19 @@
 
 #include <boost/shared_ptr.hpp>
 #include "sensor_processor/general_processor.h"
-#include "sensor_processor/abstract_handler.h"
+#include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
   template <class Input, class Output>
-  class PostProcessor : public GeneralProcessor<Input, Output>
+  class PostProcessor : public GeneralProcessor
   {
   private:
     typedef boost::shared_ptr<Input const> InputConstPtr;
     typedef boost::shared_ptr<Output> OutputPtr;
   public:
-    PostProcessor(const std::string& ns, AbstractHandler* handler) :
-      GeneralProcessor<Input, Output>(ns, handler) 
+    PostProcessor(const std::string& ns, Handler* handler) :
+      GeneralProcessor(ns, handler) 
     {
       std::string outputTopic;
       
@@ -72,8 +72,8 @@ namespace sensor_processor
       postProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process(const boost::shared_ptr<boost::any const> input, 
-        const boost::shared_ptr<boost::any> output)
+      process(const boost::shared_ptr<boost::any const>& input, 
+        const boost::shared_ptr<boost::any>& output)
       {
         InputConstPtr in = boost::any_cast<InputConstPtr>(input);
         OutputPtr out = boost::any_cast<OutputPtr>(output);

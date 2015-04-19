@@ -41,24 +41,23 @@
 
 #include <ros/ros.h>
 #include "sensor_processor/abstract_processor.h"
-#include "sensor_processor/abstract_handler.h"
+#include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
   /**
    * @class GeneralProcessor TODO
    */
-  template <class Input, class Output>
   class GeneralProcessor : public AbstractProcessor
   {
   public:
-    GeneralProcessor(const std::string& ns, AbstractHandler* handler);
+    GeneralProcessor(const std::string& ns, Handler* handler);
     virtual
       ~GeneralProcessor();
 
     virtual bool
-      process(const boost::shared_ptr<boost::any const> input, 
-      const boost::shared_ptr<boost::any> output) = 0;
+      process(const boost::shared_ptr<boost::any const>& input, 
+      const boost::shared_ptr<boost::any>& output) = 0;
 
   protected:
     ros::NodeHandlePtr accessPublicNh();

@@ -45,7 +45,6 @@
 #include <ros/forwards.h>
 
 #include "state_manager/state_client.h"
-#include "sensor_processor/abstract_handler.h"
 #include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor

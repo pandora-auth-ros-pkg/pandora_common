@@ -43,48 +43,35 @@
 #include <string>
 #include <boost/algorithm/string.hpp>
 
-#include "sensor_processor/abstract_handler.h"
+#include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
-  template <class Input, class Output>
-    GeneralProcessor<Input, Output>::
-    GeneralProcessor(const std::string& ns, AbstractHandler* handler)
-    {
-      this->processorNh_.reset( new ros::NodeHandle(ns) );
-      this->publicNh_ = handler->shareNodeHandle();
-      this->name_ = boost::to_upper_copy(ros::this_node::getName());
-    }
+  GeneralProcessor::GeneralProcessor(const std::string& ns, Handler* handler)
+  {
+    this->processorNh_.reset( new ros::NodeHandle(ns) );
+    this->publicNh_ = handler->shareNodeHandle();
+    this->name_ = boost::to_upper_copy(ros::this_node::getName());
+  }
 
-  template <class Input, class Output>
-    GeneralProcessor<Input, Output>::
-    ~GeneralProcessor()
-    {
-    }
+  GeneralProcessor::~GeneralProcessor()
+  {
+  }
 
-  template <class Input, class Output>
-    ros::NodeHandlePtr
-    GeneralProcessor<Input, Output>::
-    accessPublicNh()
-    {
-      return this->publicNh_;
-    }
+  ros::NodeHandlePtr GeneralProcessor::accessPublicNh()
+  {
+    return this->publicNh_;
+  }
 
-  template <class Input, class Output>
-    ros::NodeHandlePtr
-    GeneralProcessor<Input, Output>::
-    accessProcessorNh()
-    {
-      return this->processorNh_;
-    }
+  ros::NodeHandlePtr GeneralProcessor::accessProcessorNh()
+  {
+    return this->processorNh_;
+  }
 
-  template <class Input, class Output>
-    std::string
-    GeneralProcessor<Input, Output>::
-    getName()
-    {
-      return this->name_;
-    }
+  std::string GeneralProcessor::getName()
+  {
+    return this->name_;
+  }
 }  // namespace sensor_processor
 
 #endif  // SENSOR_PROCESSOR_GENERAL_PROCESSOR_HXX

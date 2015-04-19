@@ -45,7 +45,7 @@
 namespace sensor_processor
 {
   typedef std_msgs::Int32 Int32;
-  class DummyHandler : public Handler<Int32, Int32, Int32, Int32>
+  class DummyHandler : public Handler
   {
   public:
     DummyHandler(const std::string& ns);

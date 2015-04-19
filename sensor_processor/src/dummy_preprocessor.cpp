@@ -41,7 +41,7 @@
 namespace sensor_processor
 {
   DummyPreProcessor::
-  DummyPreProcessor(const std::string& ns, AbstractHandler* handler) :
+  DummyPreProcessor(const std::string& ns, Handler* handler) :
   PreProcessor<std_msgs::Int32, std_msgs::Int32>(ns, handler)
   {
     data_ = 2;

@@ -42,19 +42,19 @@
 
 #include <boost/shared_ptr.hpp>
 #include "sensor_processor/general_processor.h"
-#include "sensor_processor/abstract_handler.h"
+#include "sensor_processor/handler.h"
 
 namespace sensor_processor
 {
   template <class Input, class Output>
-  class PreProcessor : public GeneralProcessor<Input, Output>
+  class PreProcessor : public GeneralProcessor
   {
   private:
     typedef boost::shared_ptr<Input const> InputConstPtr;
     typedef boost::shared_ptr<Output> OutputPtr;
   public:
-    PreProcessor(const std::string& ns, AbstractHandler* handler) :
-      GeneralProcessor<Input, Output>(ns, handler) 
+    PreProcessor(const std::string& ns, Handler* handler) :
+      GeneralProcessor(ns, handler) 
     {
       XmlRpc::XmlRpcValue inputTopics;
       if (!this->accessPublicNh()->getParam("subscribed_topic", inputTopics))
@@ -67,7 +67,7 @@ namespace sensor_processor
       {
         ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
         nSubscribers_.push_back(this->accessPublicNh()->subscribe(inputTopics[ii], 1, 
-          &Handler::completeProcessCallback, this));  // Handler??????????????????
+          &Handler::completeProcessCallback, this));
       }
     }
     virtual
@@ -77,8 +77,8 @@ namespace sensor_processor
       preProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process(const boost::shared_ptr<boost::any const> input, 
-        const boost::shared_ptr<boost::any> output)
+      process(const boost::shared_ptr<boost::any const>& input, 
+        const boost::shared_ptr<boost::any>& output)
       {
         InputConstPtr in = boost::any_cast<InputConstPtr>(input);
         OutputPtr out = boost::any_cast<OutputPtr>(output);

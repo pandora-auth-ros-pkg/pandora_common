@@ -93,7 +93,7 @@ namespace sensor_processor
 
       // First a preprocessing operation happens
       try {
-        success = preProcPtr->process(subscribedTypePtr, processorInputPtr_);
+        success = preProcPtr_->process(subscribedTypePtr, processorInputPtr_);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());
@@ -105,7 +105,7 @@ namespace sensor_processor
       }
 
       try {
-        success = processorPtr->process(processorInputPtr_, processorOutputPtr_);
+        success = processorPtr_->process(processorInputPtr_, processorOutputPtr_);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());
@@ -117,7 +117,7 @@ namespace sensor_processor
       }
 
       try {
-        success = postProcPtr->process(processorOutputPtr_, processorResultPtr_);
+        success = postProcPtr_->process(processorOutputPtr_, processorResultPtr_);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());
