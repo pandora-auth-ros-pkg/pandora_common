@@ -44,9 +44,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include "sensor_processor/ProcessorLogInfo.h"
-#include "sensor_processor/processor.h"
-#include "sensor_processor/preprocessor.h"
-#include "sensor_processor/postprocessor.h"
 #include "sensor_processor/handler.h"
 #include "sensor_processor/processor_error.h"
 
@@ -90,10 +87,11 @@ namespace sensor_processor
     {
       ROS_INFO("Received msg!");
       bool success = true;  //!< checker for success of operations
-
+      boost::shared_ptr<boost::any const> subTypePtr(new boost::any(*subscribedTypePtr));
+      
       // First a preprocessing operation happens
       try {
-        success = preProcPtr_->process(subscribedTypePtr, processorInputPtr_);
+        success = preProcPtr_->process(subTypePtr, processorInputPtr_);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());

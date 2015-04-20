@@ -41,7 +41,7 @@
 namespace sensor_processor
 {
   DummyProcessor::
-  DummyProcessor(const std::string& ns, AbstractHandler* handler) :
+  DummyProcessor(const std::string& ns, Handler* handler) :
   Processor<std_msgs::Int32, std_msgs::Int32>(ns, handler)
   {
     data_ = 3;

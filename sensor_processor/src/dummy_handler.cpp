@@ -45,7 +45,7 @@
 namespace sensor_processor
 {
   DummyHandler::
-  DummyHandler(const std::string& ns) : Handler<Int32, Int32, Int32, Int32>(ns)
+  DummyHandler(const std::string& ns) : Handler(ns)
   {
   }
 

@@ -67,7 +67,8 @@ namespace sensor_processor
       {
         ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
         nSubscribers_.push_back(this->accessPublicNh()->subscribe(inputTopics[ii], 1, 
-          &Handler::completeProcessCallback, this));
+          static_cast<void(Handler::*)(const InputConstPtr&)>(&Handler::completeProcessCallback), 
+          handler));
       }
     }
     virtual
