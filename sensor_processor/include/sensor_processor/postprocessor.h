@@ -50,21 +50,24 @@ namespace sensor_processor
   class PostProcessor : public GeneralProcessor
   {
   private:
+    typedef boost::shared_ptr<Input> InputPtr;
     typedef boost::shared_ptr<Input const> InputConstPtr;
     typedef boost::shared_ptr<Output> OutputPtr;
+
   public:
     PostProcessor(const std::string& ns, Handler* handler) :
-      GeneralProcessor(ns, handler) 
+      GeneralProcessor(ns, handler)
     {
       std::string outputTopic;
-      
-      if (!this->accessPublicNh()->getParam("published_topic", outputTopic))
+
+      if (!this->accessPublicNh()->getParam("published_topics", outputTopic))
       {
-        ROS_FATAL("published_topic param not found");
+        ROS_FATAL("'published_topics:' param not found");
         ROS_BREAK();
       }
       nPublisher_ = this->accessPublicNh()->template advertise<Output>(outputTopic, 1);
     }
+
     virtual
       ~PostProcessor() {}
 
@@ -72,20 +75,31 @@ namespace sensor_processor
       postProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process(const boost::shared_ptr<boost::any const>& input, 
-        const boost::shared_ptr<boost::any>& output)
+      process(boost::shared_ptr<boost::any> input,
+          boost::shared_ptr<boost::any> output)
       {
-        InputConstPtr in = boost::any_cast<InputConstPtr>(input);
-        OutputPtr out = boost::any_cast<OutputPtr>(output);
-        
-        if (postProcess(in, out))
+        InputConstPtr in;
+        OutputPtr out( new Output );
+        try {
+          in = boost::any_cast<InputPtr>(*input);
+          *output = out;
+        }
+        catch (boost::bad_any_cast& e) {
+          ROS_FATAL("Bad any_cast occured in preprocessor: %s", e.what());
+          ROS_BREAK();
+        }
+
+        bool success = postProcess(in, out);
+        if (success)
         {
           nPublisher_.publish(*out);
         }
-        return postProcess(in, out);
+        return success;
       }
+
   private:
     ros::Publisher nPublisher_;
+
   };
 }  // namespace sensor_processor
 

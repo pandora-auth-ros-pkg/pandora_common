@@ -57,10 +57,6 @@ namespace sensor_processor
     virtual
       ~GeneralProcessor();
 
-    virtual bool
-      process(const boost::shared_ptr<boost::any const>& input,
-      const boost::shared_ptr<boost::any>& output) = 0;
-
   protected:
     ros::NodeHandlePtr accessPublicNh();
     ros::NodeHandlePtr accessProcessorNh();

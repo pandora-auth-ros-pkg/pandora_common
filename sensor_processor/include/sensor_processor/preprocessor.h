@@ -50,16 +50,18 @@ namespace sensor_processor
   class PreProcessor : public GeneralProcessor
   {
   private:
+    typedef boost::shared_ptr<Input> InputPtr;
     typedef boost::shared_ptr<Input const> InputConstPtr;
     typedef boost::shared_ptr<Output> OutputPtr;
+
   public:
     PreProcessor(const std::string& ns, Handler* handler) :
       GeneralProcessor(ns, handler)
     {
       XmlRpc::XmlRpcValue inputTopics;
-      if (!this->accessPublicNh()->getParam("subscribed_topic", inputTopics))
+      if (!this->accessPublicNh()->getParam("subscribed_topics", inputTopics))
       {
-        ROS_FATAL("subscribed_topic param not found");
+        ROS_FATAL("'subscribed_topics:' param not found");
         ROS_BREAK();
       }
       ROS_ASSERT(inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray);
@@ -71,6 +73,7 @@ namespace sensor_processor
           handler));
       }
     }
+
     virtual
       ~PreProcessor() {}
 
@@ -78,15 +81,25 @@ namespace sensor_processor
       preProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process(const boost::shared_ptr<boost::any const>& input,
-        const boost::shared_ptr<boost::any>& output)
+      process(boost::shared_ptr<boost::any> input,
+          boost::shared_ptr<boost::any> output)
       {
-        InputConstPtr in = boost::any_cast<InputConstPtr>(input);
-        OutputPtr out = boost::any_cast<OutputPtr>(output);
+        InputConstPtr in;
+        OutputPtr out( new Output );
+        try {
+          in = boost::any_cast<InputConstPtr>(*input);
+          *output = out;
+        }
+        catch (boost::bad_any_cast& e) {
+          ROS_FATAL("Bad any_cast occured in preprocessor: %s", e.what());
+          ROS_BREAK();
+        }
         return preProcess(in, out);
       }
+
   private:
     std::vector<ros::Subscriber> nSubscribers_;
+
   };
 }  // namespace sensor_processor
 

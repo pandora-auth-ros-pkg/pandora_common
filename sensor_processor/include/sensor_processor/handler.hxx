@@ -56,10 +56,6 @@ namespace sensor_processor
       currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
       previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
-      processorInputPtr_.reset( new boost::any() );
-      processorOutputPtr_.reset( new boost::any() );
-      processorResultPtr_.reset( new boost::any() );
-      
       std::string reportTopicName;
 
       nhPtr_->param<std::string>("op_report_topic", reportTopicName,
@@ -80,18 +76,21 @@ namespace sensor_processor
     {
       return nhPtr_;
     }
-    
+
     template <class SubType>
     void Handler::completeProcessCallback(
         const boost::shared_ptr<SubType const>& subscribedTypePtr)
     {
       ROS_INFO("Received msg!");
       bool success = true;  //!< checker for success of operations
-      boost::shared_ptr<boost::any const> subTypePtr(new boost::any(*subscribedTypePtr));
-      
+      boost::shared_ptr<boost::any> subTypePtr( new boost::any(subscribedTypePtr) );
+      boost::shared_ptr<boost::any> processorInputPtr( new boost::any );
+      boost::shared_ptr<boost::any> processorOutputPtr( new boost::any );
+      boost::shared_ptr<boost::any> processorResultPtr( new boost::any );
+
       // First a preprocessing operation happens
       try {
-        success = preProcPtr_->process(subTypePtr, processorInputPtr_);
+        success = preProcPtr_->process(subTypePtr, processorInputPtr);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());
@@ -103,7 +102,7 @@ namespace sensor_processor
       }
 
       try {
-        success = processorPtr_->process(processorInputPtr_, processorOutputPtr_);
+        success = processorPtr_->process(processorInputPtr, processorOutputPtr);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());
@@ -115,7 +114,7 @@ namespace sensor_processor
       }
 
       try {
-        success = postProcPtr_->process(processorOutputPtr_, processorResultPtr_);
+        success = postProcPtr_->process(processorOutputPtr, processorResultPtr);
       }
       catch (processor_error& e) {
         completeProcessFinish(false, e.what());

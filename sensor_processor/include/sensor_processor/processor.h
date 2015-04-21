@@ -50,12 +50,16 @@ namespace sensor_processor
   class Processor : public GeneralProcessor
   {
   private:
+    typedef boost::shared_ptr<Input> InputPtr;
     typedef boost::shared_ptr<Input const> InputConstPtr;
     typedef boost::shared_ptr<Output> OutputPtr;
+
   public:
     Processor(const std::string& ns, Handler* handler) :
       GeneralProcessor(ns, handler) {}
+
     Processor(void) : GeneralProcessor() {}
+
     virtual
       ~Processor() {}
 
@@ -63,13 +67,22 @@ namespace sensor_processor
       process(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process(const boost::shared_ptr<boost::any const>& input,
-        const boost::shared_ptr<boost::any>& output)
+      process(boost::shared_ptr<boost::any> input,
+          boost::shared_ptr<boost::any> output)
       {
-        InputConstPtr in = boost::any_cast<InputConstPtr>(input);
-        OutputPtr out = boost::any_cast<OutputPtr>(output);
+        InputConstPtr in;
+        OutputPtr out( new Output );
+        try {
+          in = boost::any_cast<InputPtr>(*input);
+          *output = out;
+        }
+        catch (boost::bad_any_cast& e) {
+          ROS_FATAL("Bad any_cast occured in preprocessor: %s", e.what());
+          ROS_BREAK();
+        }
         return process(in, out);
       }
+
   };
 }  // namespace sensor_processor
 

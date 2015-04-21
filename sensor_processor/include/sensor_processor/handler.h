@@ -85,10 +85,6 @@ namespace sensor_processor
     std::string name_;
 
     ros::Publisher operationReport_;
-
-    boost::shared_ptr<boost::any> processorInputPtr_;
-    boost::shared_ptr<boost::any> processorOutputPtr_;
-    boost::shared_ptr<boost::any> processorResultPtr_;
   };
 }  // namespace sensor_processor
 
