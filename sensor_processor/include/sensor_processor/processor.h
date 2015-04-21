@@ -55,7 +55,7 @@ namespace sensor_processor
   public:
     Processor(const std::string& ns, Handler* handler) :
       GeneralProcessor(ns, handler) {}
-    Processor(void) : GeneralProcessor(void) {}
+    Processor(void) : GeneralProcessor() {}
     virtual
       ~Processor() {}
 
