@@ -54,7 +54,7 @@ namespace sensor_processor
     typedef boost::shared_ptr<Output> OutputPtr;
   public:
     PreProcessor(const std::string& ns, Handler* handler) :
-      GeneralProcessor(ns, handler) 
+      GeneralProcessor(ns, handler)
     {
       XmlRpc::XmlRpcValue inputTopics;
       if (!this->accessPublicNh()->getParam("subscribed_topic", inputTopics))
@@ -66,8 +66,8 @@ namespace sensor_processor
       for (int ii = 0; ii < inputTopics.size(); ii++)
       {
         ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
-        nSubscribers_.push_back(this->accessPublicNh()->subscribe(inputTopics[ii], 1, 
-          static_cast<void(Handler::*)(const InputConstPtr&)>(&Handler::completeProcessCallback), 
+        nSubscribers_.push_back(this->accessPublicNh()->subscribe(inputTopics[ii], 1,
+          static_cast<void(Handler::*)(const InputConstPtr&)>(&Handler::completeProcessCallback),
           handler));
       }
     }
@@ -78,7 +78,7 @@ namespace sensor_processor
       preProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process(const boost::shared_ptr<boost::any const>& input, 
+      process(const boost::shared_ptr<boost::any const>& input,
         const boost::shared_ptr<boost::any>& output)
       {
         InputConstPtr in = boost::any_cast<InputConstPtr>(input);

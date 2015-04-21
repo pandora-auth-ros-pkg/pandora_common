@@ -55,6 +55,7 @@ namespace sensor_processor
   public:
     Processor(const std::string& ns, Handler* handler) :
       GeneralProcessor(ns, handler) {}
+    Processor(void) : GeneralProcessor(void) {}
     virtual
       ~Processor() {}
 
@@ -62,7 +63,7 @@ namespace sensor_processor
       process(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process(const boost::shared_ptr<boost::any const>& input, 
+      process(const boost::shared_ptr<boost::any const>& input,
         const boost::shared_ptr<boost::any>& output)
       {
         InputConstPtr in = boost::any_cast<InputConstPtr>(input);

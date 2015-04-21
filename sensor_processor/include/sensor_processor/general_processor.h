@@ -53,11 +53,12 @@ namespace sensor_processor
   {
   public:
     GeneralProcessor(const std::string& ns, Handler* handler);
+    GeneralProcessor(void);
     virtual
       ~GeneralProcessor();
 
     virtual bool
-      process(const boost::shared_ptr<boost::any const>& input, 
+      process(const boost::shared_ptr<boost::any const>& input,
       const boost::shared_ptr<boost::any>& output) = 0;
 
   protected:
@@ -76,6 +77,10 @@ namespace sensor_processor
     this->processorNh_.reset( new ros::NodeHandle(ns) );
     this->publicNh_ = handler->shareNodeHandle();
     this->name_ = boost::to_upper_copy(ros::this_node::getName());
+  }
+
+  GeneralProcessor::GeneralProcessor(void)
+  {
   }
 
   GeneralProcessor::~GeneralProcessor()

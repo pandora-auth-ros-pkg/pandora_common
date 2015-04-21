@@ -49,7 +49,7 @@ namespace sensor_processor
   {
     public:
       virtual bool
-        process(const boost::shared_ptr<boost::any const>& input, 
+        process(const boost::shared_ptr<boost::any const>& input,
         const boost::shared_ptr<boost::any>& output) = 0;
   };
 
