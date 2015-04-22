@@ -65,6 +65,7 @@ add_dependencies(bag_player_for_tests ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 
 if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
   add_rostest(launch/dummy_test.launch)
 endif()
 
