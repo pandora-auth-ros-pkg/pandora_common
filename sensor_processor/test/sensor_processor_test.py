@@ -33,6 +33,7 @@ class SensorProcessorTest(test_base.TestBase):
         self.benchmarking = True
         duration = self.simpleBenchmark("/test/listen", "/test/answer", Int32(10))
         rospy.loginfo("Time of plain sensor_processor is: " + str(duration) + " ms.")
+        self.assertGreater(1, duration)
 
 
 if __name__ == "__main__":
