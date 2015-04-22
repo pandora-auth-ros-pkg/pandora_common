@@ -64,6 +64,10 @@ target_link_libraries(bag_player_for_tests ${catkin_LIBRARIES})
 add_dependencies(bag_player_for_tests ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 
+if(CATKIN_ENABLE_TESTING)
+  add_rostest(launch/dummy_test.launch)
+endif()
+
 ## Install targets
 
 # Install headers
