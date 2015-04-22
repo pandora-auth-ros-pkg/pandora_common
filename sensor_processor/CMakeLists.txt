@@ -84,6 +84,6 @@ if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
   find_package(pandora_testing_tools REQUIRED)
 
-  add_rostest(launch/sensor_processor_node.test)
+  add_rostest(test/sensor_processor_node.test)
 
 endif()
