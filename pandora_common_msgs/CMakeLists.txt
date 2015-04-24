@@ -9,7 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   GeneralAlertInfo.msg
-  GeneralAlertInfoVector.msg
+  GeneralAlertVector.msg
+  GeneralAlert.msg
 )
 
 add_action_files(
