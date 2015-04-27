@@ -43,8 +43,9 @@ from state_manager_msgs.srv import RegisterNodeSrv, RegisterNodeSrvRequest
 
 class StateClient(object):
 
-    def __init__(self, do_register=True):
+    def __init__(self, do_register=True, silent=True):
         self._name = rospy.get_name()
+        self._silent = silent
         self._acknowledge_publisher = Publisher('/robot/state/server',
                                                 RobotModeMsg, latch=True,
                                                 queue_size=5)
@@ -52,7 +53,8 @@ class StateClient(object):
                                             RobotModeMsg,
                                             self.server_state_information,
                                             queue_size=10)
-        self._state_changer = ActionClient('/robot/state/change', RobotModeAction)
+        self._state_changer = ActionClient('/robot/state/change',
+                                           RobotModeAction)
         if do_register:
             self.client_register()
 
@@ -81,11 +83,13 @@ class StateClient(object):
             logerr("[%s] Failed to register node. Retrying...", self._name)
 
     def start_transition(self, state):
-        loginfo("[%s] Starting Transition to state %i", self._name, state)
+        if not self._silent:
+            loginfo("[%s] Starting Transition to state %i", self._name, state)
         self.transition_complete(state)
 
     def transition_complete(self, state):
-        loginfo("[%s] Node Transition to state %i Completed", self._name, state)
+        if not self._silent:
+            loginfo("[%s] Node Transition to state %i Completed", self._name, state)
         msg = RobotModeMsg()
         msg.nodeName = self._name
         msg.mode = state
@@ -93,11 +97,9 @@ class StateClient(object):
 
         self._acknowledge_publisher.publish(msg)
 
-    def complete_transition(self):
-        loginfo("[%s] System Transitioned, starting work", self._name)
-
     def transition_to_state(self, state):
-        loginfo("[%s] Requesting transition to state %i", self._name, state)
+        if not self._silent:
+            loginfo("[%s] Requesting transition to state %i", self._name, state)
         msg = RobotModeMsg()
         msg.nodeName = self._name
         msg.mode = state
@@ -122,11 +124,13 @@ class StateClient(object):
         return self._state_changer.wait_for_result()
 
     def server_state_information(self, msg):
-        loginfo("[%s] Received new information from state server", self._name)
+        if not self._silent:
+            loginfo("[%s] Received new information from state server", self._name)
 
         if msg.type == RobotModeMsg.TYPE_TRANSITION:
             self.start_transition(msg.mode)
         elif msg.type == RobotModeMsg.TYPE_START:
-            self.complete_transition()
+            if not self._silent:
+                loginfo("[%s] System Transitioned, starting work", self._name)
         else:
             logerr("[%s] StateClient received a new state command, that is not understandable", self._name)
