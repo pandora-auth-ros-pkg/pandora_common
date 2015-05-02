@@ -35,10 +35,11 @@
 #          Konstantinos Sideris <siderisk@auth.gr>
 
 import rospy
-from rospy import Publisher, Subscriber, loginfo, logerr
+from rospy import Publisher, Subscriber, ServiceProxy, loginfo, logerr
 from actionlib import SimpleActionClient as ActionClient
 from state_manager_msgs.msg import RobotModeMsg, RobotModeAction, RobotModeGoal
 from state_manager_msgs.srv import RegisterNodeSrv, RegisterNodeSrvRequest
+from state_manager_msgs.srv import GetStateInfo, GetStateInfoRequest
 
 
 class StateClient(object):
@@ -53,6 +54,7 @@ class StateClient(object):
                                             RobotModeMsg,
                                             self.server_state_information,
                                             queue_size=10)
+        self._state_info = ServiceProxy('/robot/state/info', GetStateInfo)
         self._state_changer = ActionClient('/robot/state/change',
                                            RobotModeAction)
         if do_register:
@@ -96,6 +98,36 @@ class StateClient(object):
         msg.type = RobotModeMsg.TYPE_ACK
 
         self._acknowledge_publisher.publish(msg)
+
+    def get_current_state(self):
+        """ Returns the current robot state from the state manager. """
+
+        req = GetStateInfoRequest()
+        req.option = GetStateInfoRequest.CURRENT_STATE
+        try:
+            res = self._state_info(req)
+        except rospy.ServiceException:
+            logerr('Service GetStateInfo failed to respond.')
+
+        if res.state == -1:
+            logerr('GetStateInfo: %s is not a valid request.', req.option)
+
+        return res.state
+
+    def get_previous_state(self):
+        """ Returns the previous robot state from the state manager. """
+
+        req = GetStateInfoRequest()
+        req.option = GetStateInfoRequest.PREVIOUS_STATE
+        try:
+            res = self._state_info(req)
+        except rospy.ServiceException:
+            logerr('Service GetStateInfo failed to respond.')
+
+        if res.state == -1:
+            logerr('GetStateInfo: %s is not a valid request.', req.option)
+
+        return res.state
 
     def transition_to_state(self, state):
         if not self._silent:
