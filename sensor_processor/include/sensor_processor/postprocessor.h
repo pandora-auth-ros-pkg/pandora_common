@@ -58,6 +58,9 @@ namespace sensor_processor
     PostProcessor(const std::string& ns, Handler* handler) :
       GeneralProcessor(ns, handler)
     {
+      ROS_DEBUG("[%s] in postprocessor has private nh at ns: %s",
+          this->getName().c_str(), this->accessProcessorNh()->getNamespace().c_str());
+
       std::string outputTopic;
 
       if (!this->accessPublicNh()->getParam("published_topics", outputTopic))

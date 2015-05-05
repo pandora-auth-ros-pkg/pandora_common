@@ -52,7 +52,9 @@ namespace sensor_processor
     Handler::Handler(const std::string& ns)
     {
       nhPtr_.reset( new ros::NodeHandle(ns) );
-      name_ = boost::to_upper_copy(ros::this_node::getName());
+      name_ = ros::this_node::getName();
+      ROS_DEBUG_STREAM("Node "+name_+
+          " has public nh at ns: "+nhPtr_->getNamespace());
       currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
       previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
@@ -81,7 +83,6 @@ namespace sensor_processor
     void Handler::completeProcessCallback(
         const boost::shared_ptr<SubType const>& subscribedTypePtr)
     {
-      ROS_INFO("Received msg!");
       bool success = true;  //!< checker for success of operations
       boost::shared_ptr<boost::any> subTypePtr( new boost::any(subscribedTypePtr) );
       boost::shared_ptr<boost::any> processorInputPtr( new boost::any );

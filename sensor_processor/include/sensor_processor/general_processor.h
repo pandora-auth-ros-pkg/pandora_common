@@ -63,8 +63,8 @@ namespace sensor_processor
     std::string getName();
 
   protected:
-    ros::NodeHandlePtr processorNh_;
     ros::NodeHandlePtr publicNh_;
+    ros::NodeHandlePtr processorNh_;
     std::string name_;
   };
 
@@ -72,7 +72,7 @@ namespace sensor_processor
   {
     this->processorNh_.reset( new ros::NodeHandle(ns) );
     this->publicNh_ = handler->shareNodeHandle();
-    this->name_ = boost::to_upper_copy(ros::this_node::getName());
+    this->name_ = ros::this_node::getName();
   }
 
   GeneralProcessor::GeneralProcessor(void)

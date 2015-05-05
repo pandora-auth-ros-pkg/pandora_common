@@ -58,10 +58,13 @@ namespace sensor_processor
     PreProcessor(const std::string& ns, Handler* handler) :
       GeneralProcessor(ns, handler)
     {
+      ROS_DEBUG("[%s] in preprocessor has private nh at ns: %s",
+          this->getName().c_str(), this->accessProcessorNh()->getNamespace().c_str());
+
       XmlRpc::XmlRpcValue inputTopics;
       if (!this->accessPublicNh()->getParam("subscribed_topics", inputTopics))
       {
-        ROS_FATAL("'subscribed_topics:' param not found");
+        ROS_FATAL("[%s] 'subscribed_topics:' param not found", this->getName().c_str());
         ROS_BREAK();
       }
       ROS_ASSERT(inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray);

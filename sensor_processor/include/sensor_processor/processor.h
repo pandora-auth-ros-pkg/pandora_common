@@ -56,7 +56,11 @@ namespace sensor_processor
 
   public:
     Processor(const std::string& ns, Handler* handler) :
-      GeneralProcessor(ns, handler) {}
+      GeneralProcessor(ns, handler) 
+    {
+      ROS_DEBUG("[%s] in processor has private nh at ns: %s",
+          this->getName().c_str(), this->accessProcessorNh()->getNamespace().c_str());
+    }
 
     Processor(void) : GeneralProcessor() {}
 
