@@ -106,13 +106,15 @@ class StateClient(object):
         req.option = GetStateInfoRequest.CURRENT_STATE
         try:
             res = self._state_info(req)
+            if res.state == -1:
+
+                # There is a bug with the server.
+                logerr('GetStateInfo: %s is not a valid request.', req.option)
+            return res.state
         except rospy.ServiceException:
             logerr('Service GetStateInfo failed to respond.')
 
-        if res.state == -1:
-            logerr('GetStateInfo: %s is not a valid request.', req.option)
-
-        return res.state
+        return None
 
     def get_previous_state(self):
         """ Returns the previous robot state from the state manager. """
@@ -121,13 +123,15 @@ class StateClient(object):
         req.option = GetStateInfoRequest.PREVIOUS_STATE
         try:
             res = self._state_info(req)
+            if res.state == -1:
+
+                # There is a bug with the server.
+                logerr('GetStateInfo: %s is not a valid request.', req.option)
+            return res.state
         except rospy.ServiceException:
             logerr('Service GetStateInfo failed to respond.')
 
-        if res.state == -1:
-            logerr('GetStateInfo: %s is not a valid request.', req.option)
-
-        return res.state
+        return None
 
     def transition_to_state(self, state):
         if not self._silent:

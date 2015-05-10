@@ -11,7 +11,7 @@ import roslib
 roslib.load_manifest(PKG)
 
 from state_manager.state_client import StateClient
-from state_manager_msgs.srv import GetStateInfo, GetStateInfoRequest
+from state_manager_msgs.srv import GetStateInfoRequest
 
 
 class TestStateManager(unittest.TestCase):
