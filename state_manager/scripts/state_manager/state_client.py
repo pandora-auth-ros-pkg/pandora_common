@@ -139,11 +139,13 @@ class StateClient(object):
 
         self._acknowledge_publisher.publish(msg)
 
-    def change_state_and_wait(self, state):
+    def change_state_and_wait(self, state, timeout=None):
         """ Changes the state and waits for all the clients to change.
 
         :param :state A state to transition to.
+        :param :timeout A timeout in seconds to complete the state transition.
         """
+        timeout = rospy.Duration(timeout) if timeout else rospy.Duration()
         msg = RobotModeMsg()
         msg.mode = state
         msg.nodeName = self._name
@@ -153,7 +155,7 @@ class StateClient(object):
         self._state_changer.wait_for_server()
         self._state_changer.send_goal(goal)
 
-        return self._state_changer.wait_for_result()
+        return self._state_changer.wait_for_result(timeout=timeout)
 
     def server_state_information(self, msg):
         if not self._silent:
