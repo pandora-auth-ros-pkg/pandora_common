@@ -118,8 +118,8 @@ class AlertDeliveryBoy():
         self.thermalDeliveryAddress = '/vision/thermal_direction_alert'
         self.thermal_pub = rospy.Publisher(self.thermalDeliveryAddress,
                                        ThermalAlertVector)
-        self.victimImageDeliveryAddress = '/vision/victim_direction_alert'
-        self.victimImage_pub = rospy.Publisher(self.victimImageDeliveryAddress,
+        self.visualVictimDeliveryAddress = '/vision/victim_direction_alert'
+        self.visualVictim_pub = rospy.Publisher(self.visualVictimDeliveryAddress,
                                        GeneralAlertVector)
         self.soundDeliveryAddress = '/sensor_processing/sound_direction_alert'
         self.sound_pub = rospy.Publisher(self.soundDeliveryAddress,
@@ -256,11 +256,11 @@ class AlertDeliveryBoy():
         else:
             return self.thermal_msg
 
-    def deliverVictimImageOrder(self, orderYaw, orderPitch, orderProbability,
+    def deliverVisualVictimOrder(self, orderYaw, orderPitch, orderProbability,
             publish=True):
         msg = self.makeGeneralAlertVector(orderYaw, orderPitch, orderProbability)
         if publish:
-            self.victimImage_pub.publish(msg)
+            self.visualVictim_pub.publish(msg)
             rospy.sleep(0.1)
         else:
             return msg
@@ -309,8 +309,8 @@ class AlertDeliveryBoy():
             self.hole_pub.publish(nextOrder[0])
         elif nextOrder[1] == 'thermal':
             self.thermal_pub.publish(nextOrder[0])
-        elif nextOrder[1] == 'victimImage':
-            self.victimImage_pub.publish(nextOrder[0])
+        elif nextOrder[1] == 'visualVictim':
+            self.visualVictim_pub.publish(nextOrder[0])
         elif nextOrder[1] == 'motion':
             self.motion_pub.publish(nextOrder[0])
         elif nextOrder[1] == 'sound':
@@ -378,15 +378,15 @@ class AlertDeliveryBoy():
                     thermal_msg.probability = float(a[3])
                     self.orderWaitingList.append((thermal_msg, 'thermal'))
 
-                elif a[0] == 'victimImage:':
+                elif a[0] == 'visualVictim:':
                     if len(a) != 4:
                         raise BadBossOrderFile("Not right argument numbers.")
-                    victimImage_msg = GeneralAlertInfo()
-                    victimImage_msg.header.frame_id = self.frame_id
-                    victimImage_msg.yaw = float(a[1])
-                    victimImage_msg.pitch = float(a[2])
-                    victimImage_msg.probability = float(a[3])
-                    self.orderWaitingList.append((victimImage_msg, 'victimImage'))
+                    visualVictim_msg = GeneralAlertInfo()
+                    visualVictim_msg.header.frame_id = self.frame_id
+                    visualVictim_msg.yaw = float(a[1])
+                    visualVictim_msg.pitch = float(a[2])
+                    visualVictim_msg.probability = float(a[3])
+                    self.orderWaitingList.append((visualVictim_msg, 'visualVictim'))
 
                 elif a[0] == 'motion:':
                     if len(a) != 4:
