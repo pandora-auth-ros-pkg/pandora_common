@@ -40,7 +40,9 @@
 #ifndef SENSOR_PROCESSOR_PROCESSOR_H
 #define SENSOR_PROCESSOR_PROCESSOR_H
 
+#include <string>
 #include <boost/shared_ptr.hpp>
+
 #include "sensor_processor/general_processor.h"
 #include "sensor_processor/handler.h"
 
@@ -49,14 +51,14 @@ namespace sensor_processor
   template <class Input, class Output>
   class Processor : public GeneralProcessor
   {
-  private:
+   private:
     typedef boost::shared_ptr<Input> InputPtr;
     typedef boost::shared_ptr<Input const> InputConstPtr;
     typedef boost::shared_ptr<Output> OutputPtr;
 
-  public:
+   public:
     Processor(const std::string& ns, Handler* handler) :
-      GeneralProcessor(ns, handler) 
+      GeneralProcessor(ns, handler)
     {
       ROS_DEBUG("[%s] in processor has private nh at ns: %s",
           this->getName().c_str(), this->accessProcessorNh()->getNamespace().c_str());
@@ -76,17 +78,18 @@ namespace sensor_processor
       {
         InputConstPtr in;
         OutputPtr out( new Output );
-        try {
+        try
+        {
           in = boost::any_cast<InputPtr>(*input);
           *output = out;
         }
-        catch (boost::bad_any_cast& e) {
+        catch (boost::bad_any_cast& e)
+        {
           ROS_FATAL("Bad any_cast occured in preprocessor: %s", e.what());
           ROS_BREAK();
         }
         return process(in, out);
       }
-
   };
 }  // namespace sensor_processor
 

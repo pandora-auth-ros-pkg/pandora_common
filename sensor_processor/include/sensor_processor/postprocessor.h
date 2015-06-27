@@ -40,7 +40,9 @@
 #ifndef SENSOR_PROCESSOR_POSTPROCESSOR_H
 #define SENSOR_PROCESSOR_POSTPROCESSOR_H
 
+#include <string>
 #include <boost/shared_ptr.hpp>
+
 #include "sensor_processor/general_processor.h"
 #include "sensor_processor/handler.h"
 
@@ -49,12 +51,12 @@ namespace sensor_processor
   template <class Input, class Output>
   class PostProcessor : public GeneralProcessor
   {
-  private:
+   private:
     typedef boost::shared_ptr<Input> InputPtr;
     typedef boost::shared_ptr<Input const> InputConstPtr;
     typedef boost::shared_ptr<Output> OutputPtr;
 
-  public:
+   public:
     PostProcessor(const std::string& ns, Handler* handler) :
       GeneralProcessor(ns, handler)
     {
@@ -83,11 +85,13 @@ namespace sensor_processor
       {
         InputConstPtr in;
         OutputPtr out( new Output );
-        try {
+        try
+        {
           in = boost::any_cast<InputPtr>(*input);
           *output = out;
         }
-        catch (boost::bad_any_cast& e) {
+        catch (boost::bad_any_cast& e)
+        {
           ROS_FATAL("Bad any_cast occured in preprocessor: %s", e.what());
           ROS_BREAK();
         }
@@ -100,9 +104,8 @@ namespace sensor_processor
         return success;
       }
 
-  private:
+   private:
     ros::Publisher nPublisher_;
-
   };
 }  // namespace sensor_processor
 

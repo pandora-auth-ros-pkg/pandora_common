@@ -40,6 +40,7 @@
 #ifndef SENSOR_PROCESSOR_HANDLER_H
 #define SENSOR_PROCESSOR_HANDLER_H
 
+#include <string>
 #include <boost/shared_ptr.hpp>
 #include <ros/ros.h>
 #include <ros/forwards.h>
@@ -51,28 +52,28 @@ namespace sensor_processor
 {
   class Handler : public StateClient
   {
-  public:
-    Handler(const std::string& ns);
+   public:
+    explicit Handler(const std::string& ns);
     virtual
       ~Handler();
 
     ros::NodeHandlePtr shareNodeHandle();
-    
+
     template <class SubType>
     void completeProcessCallback(
           const boost::shared_ptr<SubType const>& subscribedTypePtr);
 
-  protected:
+   protected:
     virtual void
       startTransition(int newState) {}
     virtual void
       completeTransition() {}
 
-  private:
+   private:
     void
       completeProcessFinish(bool success, const std::string& logInfo);
 
-  protected:
+   protected:
     AbstractProcessorPtr preProcPtr_;
     AbstractProcessorPtr processorPtr_;
     AbstractProcessorPtr postProcPtr_;
@@ -80,7 +81,7 @@ namespace sensor_processor
     int currentState_;
     int previousState_;
 
-  private:
+   private:
     ros::NodeHandlePtr nhPtr_;
     std::string name_;
 

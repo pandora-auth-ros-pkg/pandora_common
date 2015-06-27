@@ -47,10 +47,10 @@ namespace sensor_processor
 {
   class AbstractProcessor
   {
-    public:
-      virtual bool
-        process(boost::shared_ptr<boost::any> input,
-            boost::shared_ptr<boost::any> output) = 0;
+   public:
+    virtual bool
+      process(boost::shared_ptr<boost::any> input,
+          boost::shared_ptr<boost::any> output) = 0;
   };
 
   typedef boost::shared_ptr<AbstractProcessor> AbstractProcessorPtr;

@@ -39,8 +39,10 @@
 #ifndef SENSOR_PROCESSOR_GENERAL_PROCESSOR_H
 #define SENSOR_PROCESSOR_GENERAL_PROCESSOR_H
 
+#include <string>
 #include <boost/algorithm/string.hpp>
 #include <ros/ros.h>
+
 #include "sensor_processor/abstract_processor.h"
 #include "sensor_processor/handler.h"
 
@@ -51,18 +53,18 @@ namespace sensor_processor
    */
   class GeneralProcessor : public AbstractProcessor
   {
-  public:
+   public:
     GeneralProcessor(const std::string& ns, Handler* handler);
     GeneralProcessor(void);
     virtual
       ~GeneralProcessor();
 
-  protected:
+   protected:
     ros::NodeHandlePtr accessPublicNh();
     ros::NodeHandlePtr accessProcessorNh();
     std::string getName();
 
-  protected:
+   protected:
     ros::NodeHandlePtr publicNh_;
     ros::NodeHandlePtr processorNh_;
     std::string name_;

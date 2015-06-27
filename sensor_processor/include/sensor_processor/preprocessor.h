@@ -40,6 +40,9 @@
 #ifndef SENSOR_PROCESSOR_PREPROCESSOR_H
 #define SENSOR_PROCESSOR_PREPROCESSOR_H
 
+#include <string>
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 #include "sensor_processor/general_processor.h"
 #include "sensor_processor/handler.h"
@@ -49,12 +52,12 @@ namespace sensor_processor
   template <class Input, class Output>
   class PreProcessor : public GeneralProcessor
   {
-  private:
+   private:
     typedef boost::shared_ptr<Input> InputPtr;
     typedef boost::shared_ptr<Input const> InputConstPtr;
     typedef boost::shared_ptr<Output> OutputPtr;
 
-  public:
+   public:
     PreProcessor(const std::string& ns, Handler* handler) :
       GeneralProcessor(ns, handler)
     {
@@ -68,8 +71,7 @@ namespace sensor_processor
         ROS_BREAK();
       }
       ROS_ASSERT(inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray);
-      for (int ii = 0; ii < inputTopics.size(); ii++)
-      {
+      for (int ii = 0; ii < inputTopics.size(); ii++) {
         ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
         nSubscribers_.push_back(this->accessPublicNh()->subscribe(inputTopics[ii], 1,
           static_cast<void(Handler::*)(const InputConstPtr&)>(&Handler::completeProcessCallback),
@@ -89,20 +91,21 @@ namespace sensor_processor
       {
         InputConstPtr in;
         OutputPtr out( new Output );
-        try {
+        try
+        {
           in = boost::any_cast<InputConstPtr>(*input);
           *output = out;
         }
-        catch (boost::bad_any_cast& e) {
+        catch (boost::bad_any_cast& e)
+        {
           ROS_FATAL("Bad any_cast occured in preprocessor: %s", e.what());
           ROS_BREAK();
         }
         return preProcess(in, out);
       }
 
-  private:
+   private:
     std::vector<ros::Subscriber> nSubscribers_;
-
   };
 }  // namespace sensor_processor
 
