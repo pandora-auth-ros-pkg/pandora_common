@@ -49,19 +49,16 @@
 
 namespace sensor_processor
 {
-  Handler::Handler(const std::string& ns)
+  Handler::Handler(const std::string& ns) : privateNh_("~")
   {
     nhPtr_.reset( new ros::NodeHandle(ns) );
     name_ = ros::this_node::getName();
-    ROS_DEBUG_STREAM("Node "+name_+
-        " has public nh at ns: "+nhPtr_->getNamespace());
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
     previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
     std::string reportTopicName;
 
-    nhPtr_->param<std::string>("op_report_topic", reportTopicName,
-        ros::this_node::getName() + "/processor_log");
+    nhPtr_->param<std::string>("op_report_topic", reportTopicName, "processor_log");
     operationReport_ = nhPtr_->advertise<ProcessorLogInfo>(
         reportTopicName, 10);
 

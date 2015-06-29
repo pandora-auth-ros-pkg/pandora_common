@@ -55,7 +55,7 @@ namespace sensor_processor
    public:
     explicit Handler(const std::string& ns);
     virtual
-      ~Handler();
+    ~Handler();
 
     ros::NodeHandlePtr shareNodeHandle();
 
@@ -65,13 +65,13 @@ namespace sensor_processor
 
    protected:
     virtual void
-      startTransition(int newState) {}
+    startTransition(int newState) {}
     virtual void
-      completeTransition() {}
+    completeTransition() {}
 
    private:
     void
-      completeProcessFinish(bool success, const std::string& logInfo);
+    completeProcessFinish(bool success, const std::string& logInfo);
 
    protected:
     AbstractProcessorPtr preProcPtr_;
@@ -81,10 +81,11 @@ namespace sensor_processor
     int currentState_;
     int previousState_;
 
-   private:
     ros::NodeHandlePtr nhPtr_;
+    ros::NodeHandle privateNh_;
     std::string name_;
 
+   private:
     ros::Publisher operationReport_;
   };
 }  // namespace sensor_processor

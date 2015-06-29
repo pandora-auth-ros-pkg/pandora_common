@@ -57,39 +57,38 @@ namespace sensor_processor
     typedef boost::shared_ptr<Output> OutputPtr;
 
    public:
-    Processor(const std::string& ns, Handler* handler) :
-      GeneralProcessor(ns, handler)
+    Processor(const std::string& ns, Handler* handler)
     {
-      ROS_DEBUG("[%s] in processor has private nh at ns: %s",
-          this->getName().c_str(), this->accessProcessorNh()->getNamespace().c_str());
+      initialize(ns, handler);
     }
 
-    Processor(void) : GeneralProcessor() {}
+    Processor(void) {}
 
     virtual
-      ~Processor() {}
+    ~Processor() {}
 
     virtual bool
-      process(const InputConstPtr& input, const OutputPtr& output) = 0;
+    process(const InputConstPtr& input, const OutputPtr& output) = 0;
 
     bool
-      process(boost::shared_ptr<boost::any> input,
-          boost::shared_ptr<boost::any> output)
+    process(boost::shared_ptr<boost::any> input,
+        boost::shared_ptr<boost::any> output)
+    {
+      InputConstPtr in;
+      OutputPtr out( new Output );
+      try
       {
-        InputConstPtr in;
-        OutputPtr out( new Output );
-        try
-        {
-          in = boost::any_cast<InputPtr>(*input);
-          *output = out;
-        }
-        catch (boost::bad_any_cast& e)
-        {
-          ROS_FATAL("Bad any_cast occured in preprocessor: %s", e.what());
-          ROS_BREAK();
-        }
-        return process(in, out);
+        in = boost::any_cast<InputPtr>(*input);
+        *output = out;
       }
+      catch (boost::bad_any_cast& e)
+      {
+        ROS_FATAL("Bad any_cast occured in processor %s: %s",
+            this->getName().c_str(), e.what());
+        ROS_BREAK();
+      }
+      return process(in, out);
+    }
   };
 }  // namespace sensor_processor
 

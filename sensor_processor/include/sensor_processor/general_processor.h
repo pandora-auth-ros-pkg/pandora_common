@@ -54,10 +54,11 @@ namespace sensor_processor
   class GeneralProcessor : public AbstractProcessor
   {
    public:
-    GeneralProcessor(const std::string& ns, Handler* handler);
-    GeneralProcessor(void);
+    GeneralProcessor(void) {}
     virtual
-      ~GeneralProcessor();
+    ~GeneralProcessor() {}
+    virtual void
+    initialize(const std::string& ns, Handler* handler);
 
    protected:
     ros::NodeHandlePtr accessPublicNh();
@@ -70,19 +71,12 @@ namespace sensor_processor
     std::string name_;
   };
 
-  GeneralProcessor::GeneralProcessor(const std::string& ns, Handler* handler)
+  void
+  GeneralProcessor::initialize(const std::string& ns, Handler* handler)
   {
     this->processorNh_.reset( new ros::NodeHandle(ns) );
     this->publicNh_ = handler->shareNodeHandle();
     this->name_ = ros::this_node::getName();
-  }
-
-  GeneralProcessor::GeneralProcessor(void)
-  {
-  }
-
-  GeneralProcessor::~GeneralProcessor()
-  {
   }
 
   ros::NodeHandlePtr GeneralProcessor::accessPublicNh()

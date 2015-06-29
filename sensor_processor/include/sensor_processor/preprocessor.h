@@ -58,14 +58,27 @@ namespace sensor_processor
     typedef boost::shared_ptr<Output> OutputPtr;
 
    public:
-    PreProcessor(const std::string& ns, Handler* handler) :
-      GeneralProcessor(ns, handler)
+    PreProcessor(const std::string& ns, Handler* handler)
     {
-      ROS_DEBUG("[%s] in preprocessor has private nh at ns: %s",
-          this->getName().c_str(), this->accessProcessorNh()->getNamespace().c_str());
+      initialize(ns, handler);
+    }
+    PreProcessor(void) {}
+
+    virtual
+    ~PreProcessor() {}
+
+    virtual bool
+    preProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
+
+    virtual void
+    initialize(const std::string& ns, Handler* handler)
+    {
+      GeneralProcessor::initialize(ns, handler);
+
+      ros::NodeHandle privateNh("~");
 
       XmlRpc::XmlRpcValue inputTopics;
-      if (!this->accessPublicNh()->getParam("subscribed_topics", inputTopics))
+      if (!privateNh.getParam("subscribed_topics", inputTopics))
       {
         ROS_FATAL("[%s] 'subscribed_topics:' param not found", this->getName().c_str());
         ROS_BREAK();
@@ -79,30 +92,25 @@ namespace sensor_processor
       }
     }
 
-    virtual
-      ~PreProcessor() {}
-
-    virtual bool
-      preProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
-
     bool
-      process(boost::shared_ptr<boost::any> input,
-          boost::shared_ptr<boost::any> output)
+    process(boost::shared_ptr<boost::any> input,
+        boost::shared_ptr<boost::any> output)
+    {
+      InputConstPtr in;
+      OutputPtr out( new Output );
+      try
       {
-        InputConstPtr in;
-        OutputPtr out( new Output );
-        try
-        {
-          in = boost::any_cast<InputConstPtr>(*input);
-          *output = out;
-        }
-        catch (boost::bad_any_cast& e)
-        {
-          ROS_FATAL("Bad any_cast occured in preprocessor: %s", e.what());
-          ROS_BREAK();
-        }
-        return preProcess(in, out);
+        in = boost::any_cast<InputConstPtr>(*input);
+        *output = out;
       }
+      catch (boost::bad_any_cast& e)
+      {
+        ROS_FATAL("Bad any_cast occured in preprocessor %s: %s",
+            this->getName().c_str(), e.what());
+        ROS_BREAK();
+      }
+      return preProcess(in, out);
+    }
 
    private:
     std::vector<ros::Subscriber> nSubscribers_;
