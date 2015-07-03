@@ -36,6 +36,9 @@
  *   Tsirigotis Christos <tsirif@gmail.com>
  *********************************************************************/
 
+#ifndef SENSOR_PROCESSOR_DYNAMIC_HANDLER_HXX
+#define SENSOR_PROCESSOR_DYNAMIC_HANDLER_HXX
+
 #include <string>
 #include <vector>
 
@@ -180,3 +183,5 @@ namespace sensor_processor
   }
 
 }  // namespace sensor_processor
+
+#endif  // SENSOR_PROCESSOR_DYNAMIC_HANDLER_HXX

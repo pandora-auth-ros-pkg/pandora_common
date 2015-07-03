@@ -37,6 +37,7 @@
  *********************************************************************/
 
 #include <string>
+#include <map>
 #include <vector>
 
 #include <ros/ros.h>
@@ -99,7 +100,7 @@ namespace sensor_processor
     }
 
    public:
-    DynamicHandler(bool load);
+    explicit DynamicHandler(bool load=true);
 
    protected:
     /**
