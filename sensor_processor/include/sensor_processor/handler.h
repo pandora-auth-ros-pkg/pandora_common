@@ -53,15 +53,22 @@ namespace sensor_processor
   class Handler : public StateClient
   {
    public:
-    explicit Handler(const std::string& ns);
+    explicit Handler();
     virtual
     ~Handler();
 
-    ros::NodeHandlePtr shareNodeHandle();
+    ros::NodeHandle&
+    getPublicNodeHandle();
+
+    ros::NodeHandle&
+    getPrivateNodeHandle();
+
+    std::string
+    getName();
 
     template <class SubType>
-    void completeProcessCallback(
-          const boost::shared_ptr<SubType const>& subscribedTypePtr);
+    void
+    completeProcessCallback(const boost::shared_ptr<SubType const>& subscribedTypePtr);
 
    protected:
     virtual void
@@ -81,12 +88,12 @@ namespace sensor_processor
     int currentState_;
     int previousState_;
 
-    ros::NodeHandlePtr nhPtr_;
-    ros::NodeHandle privateNh_;
+   private:
+    ros::NodeHandle nh_;
+    ros::NodeHandle private_nh_;
     std::string name_;
 
-   private:
-    ros::Publisher operationReport_;
+    ros::Publisher operation_report_;
   };
 }  // namespace sensor_processor
 

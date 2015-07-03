@@ -62,7 +62,8 @@ namespace sensor_processor
     {
       initialize(ns, handler);
     }
-    PreProcessor(void) {}
+
+    PreProcessor() {}
 
     virtual
     ~PreProcessor() {}
@@ -75,10 +76,10 @@ namespace sensor_processor
     {
       GeneralProcessor::initialize(ns, handler);
 
-      ros::NodeHandle privateNh("~");
+      ros::NodeHandle private_nh("~");
 
       XmlRpc::XmlRpcValue inputTopics;
-      if (!privateNh.getParam("subscribed_topics", inputTopics))
+      if (!private_nh.getParam("subscribed_topics", inputTopics))
       {
         ROS_FATAL("[%s] 'subscribed_topics:' param not found", this->getName().c_str());
         ROS_BREAK();
@@ -86,7 +87,7 @@ namespace sensor_processor
       ROS_ASSERT(inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray);
       for (int ii = 0; ii < inputTopics.size(); ii++) {
         ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
-        nSubscribers_.push_back(this->accessPublicNh()->subscribe(inputTopics[ii], 1,
+        nSubscribers_.push_back(this->getPublicNodeHandle().subscribe(inputTopics[ii], 1,
           static_cast<void(Handler::*)(const InputConstPtr&)>(&Handler::completeProcessCallback),
           handler));
       }
@@ -105,7 +106,7 @@ namespace sensor_processor
       }
       catch (boost::bad_any_cast& e)
       {
-        ROS_FATAL("Bad any_cast occured in preprocessor %s: %s",
+        ROS_FATAL("[%s] Bad any_cast occured in preprocessor: %s",
             this->getName().c_str(), e.what());
         ROS_BREAK();
       }

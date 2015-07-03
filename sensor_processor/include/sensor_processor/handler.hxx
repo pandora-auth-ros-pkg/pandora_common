@@ -49,31 +49,48 @@
 
 namespace sensor_processor
 {
-  Handler::Handler(const std::string& ns) : privateNh_("~")
+  Handler::
+  Handler() :
+    nh_(""), private_nh_("~")
   {
-    nhPtr_.reset( new ros::NodeHandle(ns) );
-    name_ = ros::this_node::getName();
+    name_ = boost::to_upper_copy<std::string>(nh_.getNamespace());
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
     previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
     std::string reportTopicName;
 
     nhPtr_->param<std::string>("op_report_topic", reportTopicName, "processor_log");
-    operationReport_ = nhPtr_->advertise<ProcessorLogInfo>(
-        reportTopicName, 10);
+    operation_report_ = nh_.advertise<ProcessorLogInfo>(reportTopicName, 1);
 
     clientInitialize();
-    ROS_INFO("[%s] Handler initialized", name_.c_str());
+    ROS_INFO("[%s] initialized", name_.c_str());
   }
 
-  Handler::~Handler()
+  Handler::
+  ~Handler()
   {
-    ROS_INFO("[%s] Handler terminated", name_.c_str());
+    ROS_INFO("[%s] terminated", name_.c_str());
   }
 
-  ros::NodeHandlePtr Handler::shareNodeHandle()
+  ros::NodeHandle&
+  Handler::
+  getPublicNodehandle()
   {
-    return nhPtr_;
+    return nh_;
+  }
+
+  ros::NodeHandle&
+  Handler::
+  getPrivateNodehandle()
+  {
+    return private_nh_;
+  }
+
+  std::string
+  Handler::
+  getName()
+  {
+    return name_;
   }
 
   template <class SubType>
@@ -95,7 +112,7 @@ namespace sensor_processor
       return;
     }
     if (!success) {
-      completeProcessFinish(success, "PreProcessor");
+      completeProcessFinish(success, "pre_processor");
       return;
     }
 
@@ -107,7 +124,7 @@ namespace sensor_processor
       return;
     }
     if (!success) {
-      completeProcessFinish(success, "Processor");
+      completeProcessFinish(success, "processor");
       return;
     }
 
@@ -118,7 +135,7 @@ namespace sensor_processor
       completeProcessFinish(false, e.what());
       return;
     }
-    completeProcessFinish(success, "Finished");
+    completeProcessFinish(success, "finished");
   }
 
   void Handler::completeProcessFinish(bool success, const std::string& logInfo)
