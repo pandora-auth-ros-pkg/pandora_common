@@ -53,7 +53,7 @@ namespace sensor_processor
   Handler() :
     nh_(""), private_nh_("~")
   {
-    name_ = boost::to_upper_copy<std::string>(nh_.getNamespace());
+    name_ = boost::to_upper_copy<std::string>(private_nh_.getNamespace());
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
     previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
