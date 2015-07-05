@@ -76,18 +76,36 @@ namespace sensor_processor
     {
       GeneralProcessor::initialize(ns, handler);
 
+      ros::NodeHandle private_nh = handler->getPrivateNodeHandle();
+
       XmlRpc::XmlRpcValue inputTopics;
-      if (!this->processor_nh_.getParam("subscribed_topics", inputTopics))
+      if (!private_nh.getParam("subscribed_topics", inputTopics))
       {
         ROS_FATAL("[%s] 'subscribed_topics:' param not found", this->getName().c_str());
         ROS_BREAK();
       }
-      ROS_ASSERT(inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray);
-      for (int ii = 0; ii < inputTopics.size(); ii++) {
-        ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
-        nSubscribers_.push_back(this->getPublicNodeHandle().subscribe(inputTopics[ii], 1,
-          static_cast<void(Handler::*)(const InputConstPtr&)>(&Handler::completeProcessCallback),
-          handler));
+
+      if (inputTopics.getType() == XmlRpc::XmlRpcValue::TypeString)
+      {
+        nSubscribers_.push_back(this->getPublicNodeHandle().subscribe(
+              static_cast<std::string>(inputTopics), 1,
+              static_cast<void(Handler::*)(const InputConstPtr&)>(&Handler::completeProcessCallback),
+              handler));
+      }
+      else if (inputTopics.getType() == XmlRpc::XmlRpcValue::TypeArray)
+      {
+        for (int ii = 0; ii < inputTopics.size(); ii++) {
+          ROS_ASSERT(inputTopics[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
+          nSubscribers_.push_back(this->getPublicNodeHandle().subscribe(inputTopics[ii], 1,
+            static_cast<void(Handler::*)(const InputConstPtr&)>(&Handler::completeProcessCallback),
+            handler));
+        }
+      }
+      else
+      {
+        ROS_FATAL("[%s] 'subscribed_topics' param can be either a string (single topic) or a list of strings (many topics)!",
+            this->getName().c_str());
+        ROS_ASSERT(false);
       }
     }
 

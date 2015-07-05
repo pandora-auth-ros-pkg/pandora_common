@@ -56,6 +56,9 @@ namespace sensor_processor
   DynamicHandler(bool load) :
     processor_loader_("sensor_processor", "sensor_processor::AbstractProcessor")
   {
+    currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
+    previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
+
     int ii;
 
     activeStates_.clear();
@@ -121,6 +124,13 @@ namespace sensor_processor
     loadPreProcessor(processor_name, processor_type);
   }
 
+  void
+  DynamicHandler::
+  unloadPreProcessor()
+  {
+    this->preProcPtr_.reset();
+  }
+
   template <class Processor>
   void
   DynamicHandler::
@@ -145,6 +155,13 @@ namespace sensor_processor
     if (previousProcessorType_ == processor_type)
       return;
     loadProcessor(processor_name, processor_type);
+  }
+
+  void
+  DynamicHandler::
+  unloadProcessor()
+  {
+    this->processorPtr_.reset();
   }
 
   template <class PostProcessor>
@@ -175,6 +192,13 @@ namespace sensor_processor
 
   void
   DynamicHandler::
+  unloadPostProcessor()
+  {
+    this->postProcPtr_.reset();
+  }
+
+  void
+  DynamicHandler::
   startTransition(int newState)
   {
     this->previousState_ = this->currentState_;
@@ -190,11 +214,11 @@ namespace sensor_processor
 
     if (!previouslyOff && !currentlyOn)
     {
-      this->preProcPtr_.reset();
+      unloadPreProcessor();
       previousPreProcessorType_ = "";
-      this->processorPtr_.reset();
+      unloadProcessor();
       previousProcessorType_ = "";
-      this->postProcPtr_.reset();
+      unloadPostProcessor();
       previousPostProcessorType_ = "";
     }
     else if (previouslyOff && currentlyOn)
@@ -212,9 +236,9 @@ namespace sensor_processor
 
     if (this->currentState_ == state_manager_msgs::RobotModeMsg::MODE_TERMINATING)
     {
-      this->preProcPtr_.reset();
-      this->processorPtr_.reset();
-      this->postProcPtr_.reset();
+      unloadPreProcessor();
+      unloadProcessor();
+      unloadPostProcessor();
 
       ROS_INFO("[%s] Terminating", name_.c_str());
       ros::shutdown();

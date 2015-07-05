@@ -54,8 +54,6 @@ namespace sensor_processor
     nh_(""), private_nh_("~")
   {
     name_ = boost::to_upper_copy<std::string>(private_nh_.getNamespace());
-    currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
-    previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
     std::string reportTopicName;
 

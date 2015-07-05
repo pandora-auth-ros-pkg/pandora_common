@@ -75,14 +75,14 @@ namespace sensor_processor
     {
       GeneralProcessor::initialize(ns, handler);
 
-      std::string outputTopic;
+      ros::NodeHandle private_nh = handler->getPrivateNodeHandle();
 
-      if (!this->processor_nh_.getParam("published_topics", outputTopic))
+      std::string outputTopic;
+      if (!private_nh.getParam("published_topics", outputTopic))
       {
         ROS_FATAL("[%s] 'published_topics:' param not found", this->getName().c_str());
         ROS_BREAK();
       }
-      // Learn why???
       nPublisher_ = this->getPublicNodeHandle().template advertise<Output>(outputTopic, 1);
     }
 

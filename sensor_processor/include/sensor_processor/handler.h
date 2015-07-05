@@ -53,7 +53,7 @@ namespace sensor_processor
   class Handler : public StateClient
   {
    public:
-    explicit Handler();
+    Handler();
     virtual
     ~Handler();
 
@@ -84,9 +84,6 @@ namespace sensor_processor
     AbstractProcessorPtr preProcPtr_;
     AbstractProcessorPtr processorPtr_;
     AbstractProcessorPtr postProcPtr_;
-
-    int currentState_;
-    int previousState_;
 
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;

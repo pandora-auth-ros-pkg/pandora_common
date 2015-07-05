@@ -36,6 +36,9 @@
  *   Tsirigotis Christos <tsirif@gmail.com>
  *********************************************************************/
 
+#ifndef SENSOR_PROCESSOR_DYNAMIC_HANDLER_H
+#define SENSOR_PROCESSOR_DYNAMIC_HANDLER_H
+
 #include <string>
 #include <map>
 #include <vector>
@@ -48,9 +51,6 @@
 
 #include "sensor_processor/handler.h"
 #include "sensor_processor/abstract_processor.h"
-
-#ifndef SENSOR_PROCESSOR_DYNAMIC_HANDLER_H
-#define SENSOR_PROCESSOR_DYNAMIC_HANDLER_H
 
 namespace sensor_processor
 {
@@ -109,6 +109,8 @@ namespace sensor_processor
     loadPreProcessor(const std::string& processor_name, const std::string& processor_type);
     void
     checkAndLoadPreProcessor(const std::string& processor_name, const std::string& processor_type);
+    void
+    unloadPreProcessor();
 
     template <class Processor>
     void
@@ -117,6 +119,8 @@ namespace sensor_processor
     loadProcessor(const std::string& processor_name, const std::string& processor_type);
     void
     checkAndLoadProcessor(const std::string& processor_name, const std::string& processor_type);
+    void
+    unloadProcessor();
 
     template <class PostProcessor>
     void
@@ -125,6 +129,8 @@ namespace sensor_processor
     loadPostProcessor(const std::string& processor_name, const std::string& processor_type);
     void
     checkAndLoadPostProcessor(const std::string& processor_name, const std::string& processor_type);
+    void
+    unloadPostProcessor();
 
    protected:
     /**
@@ -153,6 +159,9 @@ namespace sensor_processor
    protected:
     //!< States in which node is active
     std::vector<std::string> activeStates_;
+
+    int currentState_;
+    int previousState_;
 
    private:
     //!< Plugin PostProcessor loader
