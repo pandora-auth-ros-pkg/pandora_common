@@ -59,8 +59,8 @@ namespace sensor_processor
 
     std::string reportTopicName;
 
-    nhPtr_->param<std::string>("op_report_topic", reportTopicName, "processor_log");
-    operation_report_ = nh_.advertise<ProcessorLogInfo>(reportTopicName, 1);
+    private_nh_.param<std::string>("op_report_topic", reportTopicName, "processor_log");
+    operation_report_ = private_nh_.advertise<ProcessorLogInfo>(reportTopicName, 1);
 
     clientInitialize();
     ROS_INFO("[%s] initialized", name_.c_str());
@@ -74,14 +74,14 @@ namespace sensor_processor
 
   ros::NodeHandle&
   Handler::
-  getPublicNodehandle()
+  getPublicNodeHandle()
   {
     return nh_;
   }
 
   ros::NodeHandle&
   Handler::
-  getPrivateNodehandle()
+  getPrivateNodeHandle()
   {
     return private_nh_;
   }
@@ -140,10 +140,10 @@ namespace sensor_processor
 
   void Handler::completeProcessFinish(bool success, const std::string& logInfo)
   {
-    ProcessorLogInfo processorLogInfo;
-    processorLogInfo.success = success;
-    processorLogInfo.logInfo = logInfo;
-    operationReport_.publish(processorLogInfo);
+    ProcessorLogInfoPtr processorLogInfo( new ProcessorLogInfo );
+    processorLogInfo->success = success;
+    processorLogInfo->logInfo = logInfo;
+    operation_report_.publish(processorLogInfo);
   }
 }  // namespace sensor_processor
 

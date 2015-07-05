@@ -84,7 +84,7 @@ namespace sensor_processor
         ROS_BREAK();
       }
       // Learn why???
-      nPublisher_ = this->getPublicNodeHandle().advertise<typename Output>(outputTopic, 1);
+      nPublisher_ = this->getPublicNodeHandle().template advertise<Output>(outputTopic, 1);
     }
 
     bool
@@ -108,7 +108,7 @@ namespace sensor_processor
       bool success = postProcess(in, out);
       if (success)
       {
-        nPublisher_.publish(*out);
+        nPublisher_.publish(out);
       }
       return success;
     }

@@ -88,11 +88,11 @@ namespace sensor_processor
     int currentState_;
     int previousState_;
 
-   private:
     ros::NodeHandle nh_;
     ros::NodeHandle private_nh_;
     std::string name_;
 
+   private:
     ros::Publisher operation_report_;
   };
 }  // namespace sensor_processor

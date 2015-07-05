@@ -60,7 +60,7 @@ namespace sensor_processor
    */
   class DynamicHandler : public Handler
   {
-   private:
+   public:
     static int ROBOT_STATES(const std::string& X) {
       static std::map<std::string, int>* m = NULL;
       if (m == NULL)
@@ -102,6 +102,30 @@ namespace sensor_processor
    public:
     explicit DynamicHandler(bool load=true);
 
+    template <class PreProcessor>
+    void
+    loadPreProcessor(const std::string& processor_name);
+    void
+    loadPreProcessor(const std::string& processor_name, const std::string& processor_type);
+    void
+    checkAndLoadPreProcessor(const std::string& processor_name, const std::string& processor_type);
+
+    template <class Processor>
+    void
+    loadProcessor(const std::string& processor_name);
+    void
+    loadProcessor(const std::string& processor_name, const std::string& processor_type);
+    void
+    checkAndLoadProcessor(const std::string& processor_name, const std::string& processor_type);
+
+    template <class PostProcessor>
+    void
+    loadPostProcessor(const std::string& processor_name);
+    void
+    loadPostProcessor(const std::string& processor_name, const std::string& processor_type);
+    void
+    checkAndLoadPostProcessor(const std::string& processor_name, const std::string& processor_type);
+
    protected:
     /**
       * @brief Function that performs all the needed procedures when the robot's
@@ -126,25 +150,19 @@ namespace sensor_processor
     loadProcessor(AbstractProcessorPtr& processorPtr,
                   const std::string& processor_name, const std::string& processor_type);
 
-    /**
-      * @brief Load Post Processor implementation class if available
-      * @param name [const std::string&] name of implementation class
-      */
-    void
-    checkAndLoadProcessor(AbstractProcessorPtr& processorPtr,
-                          const std::string& processor_name, int type);
+   protected:
+    //!< States in which node is active
+    std::vector<std::string> activeStates_;
 
    private:
-    ros::NodeHandle nh_;
-    ros::NodeHandle private_nh_;
-    ros::NodeHandle name_;
-
     //!< Plugin PostProcessor loader
-    pluginlib::ClassLoader<sensor_processor::AbstractProcessor> processor_loader_;
-    //!< States in which node is active
-    std::vector<std::string> active_states_;
+    pluginlib::ClassLoader<AbstractProcessor> processor_loader_;
     //!< Map containing nodes to be loaded dynamically with state change
     std::map< int, boost::array<std::string, 3> > state_to_processor_map_;
+
+    std::string previousPreProcessorType_;
+    std::string previousProcessorType_;
+    std::string previousPostProcessorType_;
   };
 }  // namespace sensor_processor
 

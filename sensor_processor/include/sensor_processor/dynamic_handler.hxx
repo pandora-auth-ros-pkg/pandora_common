@@ -46,34 +46,34 @@
 
 #include "state_manager_msgs/RobotModeMsg.h"
 
+#include "sensor_processor/abstract_processor.h"
 #include "sensor_processor/dynamic_handler.h"
 
 namespace sensor_processor
 {
 
   DynamicHandler::
-  DynamicHandler(bool load)
+  DynamicHandler(bool load) :
+    processor_loader_("sensor_processor", "sensor_processor::AbstractProcessor")
   {
+    int ii;
+
+    activeStates_.clear();
+    XmlRpc::XmlRpcValue active_states;
+    if (!private_nh_.getParam("active_states", active_states))
+    {
+      ROS_FATAL("[%s] Cound not find active robot states", name_.c_str());
+      ROS_BREAK();
+    }
+    ROS_ASSERT(active_states.getType() == XmlRpc::XmlRpcValue::TypeArray);
+    for (ii = 0; ii < active_states.size(); ++ii) {
+      ROS_ASSERT(active_states[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
+      activeStates_.push_back(static_cast<std::string>(active_states[ii]));
+    }
+
     if (load)
     {
-      int ii, jj;
-      nh_ = this->getPublicNodeHandle();
-      private_nh_ = this->getPrivateNodeHandle();
-      name_ = this->getName();
-
-      activeStates_.clear();
-      // Get Active States
-      XmlRpc::XmlRpcValue active_states;
-      if (!privateNh_.getParam("active_states", active_states))
-      {
-        ROS_FATAL("[%s] Cound not find active robot states", name_.c_str());
-        ROS_BREAK();
-      }
-      ROS_ASSERT(active_states.getType() == XmlRpc::XmlRpcValue::TypeArray);
-      for (ii = 0; ii < active_states.size(); ++ii) {
-        ROS_ASSERT(active_states[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
-        activeStates_.push_back(static_cast<std::string>(active_states[ii]));
-      }
+      int jj;
 
       for (ii = 0; ii < activeStates_.size(); ++ii) {
         XmlRpc::XmlRpcValue state_processors;
@@ -86,13 +86,91 @@ namespace sensor_processor
         ROS_ASSERT(state_processors.size() == 3);
         boost::array<std::string, 3> processors_of_state;
         for (jj = 0; jj < 3; ++jj) {
-          ROS_ASSERT(state_processors[jj] == XmlRpc::XmlRpcValue::TypeString);
-          processors_of_state[jj] = state_processors[jj];
+          ROS_ASSERT(state_processors[jj].getType() == XmlRpc::XmlRpcValue::TypeString);
+          processors_of_state[jj] = static_cast<std::string>(state_processors[jj]);
         }
         state_to_processor_map_.insert(std::make_pair(
               ROBOT_STATES(activeStates_[ii]), processors_of_state));
       }
     }
+  }
+
+  template <class PreProcessor>
+  void
+  DynamicHandler::
+  loadPreProcessor(const std::string& processor_name)
+  {
+    this->preProcPtr_.reset( new PreProcessor );
+    this->preProcPtr_->initialize(processor_name, this);
+  }
+
+  void
+  DynamicHandler::
+  loadPreProcessor(const std::string& processor_name, const std::string& processor_type)
+  {
+    previousPreProcessorType_ = processor_type;
+    loadProcessor(this->preProcPtr_, processor_name, processor_type);
+  }
+
+  void
+  DynamicHandler::
+  checkAndLoadPreProcessor(const std::string& processor_name, const std::string& processor_type)
+  {
+    if (previousPreProcessorType_ == processor_type)
+      return;
+    loadPreProcessor(processor_name, processor_type);
+  }
+
+  template <class Processor>
+  void
+  DynamicHandler::
+  loadProcessor(const std::string& processor_name)
+  {
+    this->processorPtr_.reset( new Processor );
+    this->processorPtr_->initialize(processor_name, this);
+  }
+
+  void
+  DynamicHandler::
+  loadProcessor(const std::string& processor_name, const std::string& processor_type)
+  {
+    previousProcessorType_ = processor_type;
+    loadProcessor(this->processorPtr_, processor_name, processor_type);
+  }
+
+  void
+  DynamicHandler::
+  checkAndLoadProcessor(const std::string& processor_name, const std::string& processor_type)
+  {
+    if (previousProcessorType_ == processor_type)
+      return;
+    loadProcessor(processor_name, processor_type);
+  }
+
+  template <class PostProcessor>
+  void
+  DynamicHandler::
+  loadPostProcessor(const std::string& processor_name)
+  {
+    this->postProcPtr_.reset( new PostProcessor );
+    this->postProcPtr_->initialize(processor_name, this);
+  }
+
+  void
+  DynamicHandler::
+  loadPostProcessor(const std::string& processor_name, const std::string& processor_type)
+  {
+    previousPostProcessorType_ = processor_type;
+    loadProcessor(this->postProcPtr_, processor_name, processor_type);
+  }
+
+  void
+  DynamicHandler::
+  checkAndLoadPostProcessor(const std::string& processor_name, const std::string& processor_type)
+  {
+    if (previousPostProcessorType_ == processor_type)
+      return;
+    loadPostProcessor(processor_name, processor_type);
   }
 
   void
@@ -113,25 +191,24 @@ namespace sensor_processor
     if (!previouslyOff && !currentlyOn)
     {
       this->preProcPtr_.reset();
+      previousPreProcessorType_ = "";
       this->processorPtr_.reset();
+      previousProcessorType_ = "";
       this->postProcPtr_.reset();
+      previousPostProcessorType_ = "";
     }
     else if (previouslyOff && currentlyOn)
     {
-      loadProcessor(this->preProcPtr_,
-                    "~preprocessor", state_to_processor_map_[this->currentState_][0]);
-      loadProcessor(this->processorProcPtr_,
-                    "~processor", state_to_processor_map_[this->currentState_][1]);
-      loadProcessor(this->postProcPtr_,
-                    "~postprocessor", state_to_processor_map_[this->currentState_][2]);
+      loadPreProcessor("~preprocessor", state_to_processor_map_[this->currentState_][0]);
+      loadProcessor("~processor", state_to_processor_map_[this->currentState_][1]);
+      loadPostProcessor("~postprocessor", state_to_processor_map_[this->currentState_][2]);
     }
     else
     {
-      checkAndLoadProcessor(this->preProcPtr_, 0);
-      checkAndLoadProcessor(this->processorPtr_, 1);
-      checkAndLoadProcessor(this->postProcPtr_, 2);
+      checkAndLoadPreProcessor("~preprocessor", state_to_processor_map_[this->currentState_][0]);
+      checkAndLoadProcessor("~processor", state_to_processor_map_[this->currentState_][1]);
+      checkAndLoadPostProcessor("~postprocessor", state_to_processor_map_[this->currentState_][2]);
     }
-
 
     if (this->currentState_ == state_manager_msgs::RobotModeMsg::MODE_TERMINATING)
     {
@@ -154,32 +231,20 @@ namespace sensor_processor
   void
   DynamicHandler::
   loadProcessor(AbstractProcessorPtr& processorPtr,
-      const std::string& processor_name, const std::string& processor_type)
+                const std::string& processor_name, const std::string& processor_type)
   {
     try
     {
-      processorPtr = postProcessorLoader_.createInstance(name);
+      processorPtr = processor_loader_.createInstance(processor_type);
       processorPtr->initialize(processor_name, this);
     }
     catch (const pluginlib::PluginlibException& ex)
     {
       ROS_FATAL("[%s] Failed to create a %s processor, are you sure it is properly"
                 " registered and that the containing library is built? "
-                "Exception: %s", name_.c_str(), processor_type, ex.what());
+                "Exception: %s", name_.c_str(), processor_type.c_str(), ex.what());
       ROS_BREAK();
     }
-  }
-
-  void
-  DynamicHandler::
-  checkAndLoadProcessor(AbstractProcessorPtr& processorPtr,
-      const std::string& processor_name, int type)
-  {
-    if (state_to_processor_map_[this->previousState_][type] ==
-        state_to_processor_map_[this->currentState_][type])
-      return;
-    loadProcessor(processorPtr,
-                  processor_name, state_to_processor_map_[this->currentState_][type]);
   }
 
 }  // namespace sensor_processor
