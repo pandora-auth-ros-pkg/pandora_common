@@ -94,7 +94,7 @@ namespace sensor_processor
         m->insert(std::make_pair(6, "TELEOPERATED_LOCOMOTION"));
         m->insert(std::make_pair(7, "SENSOR_TEST"));
         m->insert(std::make_pair(8, "EXPLORATION_MAPPING"));
-        m->insert(std::make_pair(8, "TERMINATING"));
+        m->insert(std::make_pair(9, "TERMINATING"));
       }
       return (*m)[X];
     }

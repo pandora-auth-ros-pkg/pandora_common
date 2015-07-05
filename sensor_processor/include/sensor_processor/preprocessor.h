@@ -76,10 +76,8 @@ namespace sensor_processor
     {
       GeneralProcessor::initialize(ns, handler);
 
-      ros::NodeHandle private_nh("~");
-
       XmlRpc::XmlRpcValue inputTopics;
-      if (!private_nh.getParam("subscribed_topics", inputTopics))
+      if (!this->processor_nh_.getParam("subscribed_topics", inputTopics))
       {
         ROS_FATAL("[%s] 'subscribed_topics:' param not found", this->getName().c_str());
         ROS_BREAK();
