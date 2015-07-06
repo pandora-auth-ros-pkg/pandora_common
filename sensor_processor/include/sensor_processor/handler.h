@@ -45,18 +45,21 @@
 #include <ros/ros.h>
 #include <ros/forwards.h>
 
-#include "state_manager/state_client.h"
+#include "state_manager/state_client_nodelet.h"
 
 #include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
 {
-  class Handler : public state_manager::StateClient
+  class Handler : public state_manager::StateClientNodelet
   {
    public:
     Handler();
     virtual
     ~Handler();
+
+    virtual void
+    onInit();
 
     template <class SubType>
     void

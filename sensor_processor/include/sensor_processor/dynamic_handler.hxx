@@ -53,10 +53,17 @@ namespace sensor_processor
 {
 
   DynamicHandler::
-  DynamicHandler(bool load) :
+  DynamicHandler() :
     Handler(),
     processor_loader_("sensor_processor", "sensor_processor::AbstractProcessor")
+  {}
+
+  void
+  DynamicHandler::
+  onInit()
   {
+    Handler::onInit();
+
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
     previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
 
@@ -74,6 +81,9 @@ namespace sensor_processor
       ROS_ASSERT(active_states[ii].getType() == XmlRpc::XmlRpcValue::TypeString);
       activeStates_.push_back(static_cast<std::string>(active_states[ii]));
     }
+
+    bool load;
+    private_nh_.param("load_processors", load, false);
 
     if (load)
     {

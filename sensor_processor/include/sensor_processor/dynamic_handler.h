@@ -61,7 +61,10 @@ namespace sensor_processor
   class DynamicHandler : public Handler
   {
    public:
-    explicit DynamicHandler(bool load=true);
+    DynamicHandler();
+
+    virtual void
+    onInit();
 
     template <class PreProcessor>
     void

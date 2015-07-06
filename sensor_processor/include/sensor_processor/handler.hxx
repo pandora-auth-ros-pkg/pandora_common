@@ -51,9 +51,14 @@ namespace sensor_processor
 {
 
   Handler::
-  Handler() :
-    state_manager::StateClient(true)
+  Handler() : state_manager::StateClientNodelet() {}
+
+  void
+  Handler::
+  onInit()
   {
+    state_manager::StateClientNodelet::onInit();
+
     nh_ = this->getPublicNodeHandle();
     private_nh_ = this->getPrivateNodeHandle();
     name_ = this->getName();
