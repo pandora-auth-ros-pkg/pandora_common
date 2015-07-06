@@ -62,6 +62,7 @@ namespace sensor_processor
   {
    public:
     DynamicHandler();
+    virtual ~DynamicHandler();
 
     virtual void
     onInit();
@@ -129,7 +130,7 @@ namespace sensor_processor
 
    private:
     //!< Plugin PostProcessor loader
-    pluginlib::ClassLoader<AbstractProcessor> processor_loader_;
+    boost::shared_ptr< pluginlib::ClassLoader<AbstractProcessor> > processor_loader_ptr_;
     //!< Map containing nodes to be loaded dynamically with state change
     std::map< int, boost::array<std::string, 3> > state_to_processor_map_;
 

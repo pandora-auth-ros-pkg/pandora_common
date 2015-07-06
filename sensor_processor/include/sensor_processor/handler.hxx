@@ -51,12 +51,13 @@ namespace sensor_processor
 {
 
   Handler::
-  Handler() : state_manager::StateClientNodelet() {}
+  Handler() {}
 
   void
   Handler::
   onInit()
   {
+    ROS_WARN("handler onInit");
     state_manager::StateClientNodelet::onInit();
 
     nh_ = this->getPublicNodeHandle();

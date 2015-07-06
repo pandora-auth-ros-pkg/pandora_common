@@ -53,16 +53,20 @@ namespace sensor_processor
 {
 
   DynamicHandler::
-  DynamicHandler() :
-    Handler(),
-    processor_loader_("sensor_processor", "sensor_processor::AbstractProcessor")
-  {}
+  DynamicHandler() {}
+
+  DynamicHandler::
+  ~DynamicHandler() {}
 
   void
   DynamicHandler::
   onInit()
   {
+    ROS_WARN("dynamic_handler onInit");
     Handler::onInit();
+
+    processor_loader_ptr_.reset( new pluginlib::
+        ClassLoader<AbstractProcessor>("sensor_processor", "sensor_processor::AbstractProcessor") );
 
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
     previousState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
@@ -270,7 +274,7 @@ namespace sensor_processor
   {
     try
     {
-      processorPtr = processor_loader_.createInstance(processor_type);
+      processorPtr = processor_loader_ptr_->createInstance(processor_type);
       processorPtr->initialize(processor_name, this);
     }
     catch (const pluginlib::PluginlibException& ex)
