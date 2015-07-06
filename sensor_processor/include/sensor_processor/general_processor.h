@@ -78,6 +78,7 @@ namespace sensor_processor
     this->processor_nh_ = ros::NodeHandle(ns);
     this->public_nh_ = handler->getPublicNodeHandle();
     this->name_ = boost::to_upper_copy<std::string>(this->processor_nh_.getNamespace());
+    ROS_INFO("[%s] Initialized", this->name_.c_str());
   }
 
   ros::NodeHandle&

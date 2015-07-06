@@ -51,7 +51,7 @@ namespace sensor_processor
 {
   Handler::
   Handler() :
-    nh_(""), private_nh_("~")
+    StateClient(true), nh_(""), private_nh_("~")
   {
     name_ = boost::to_upper_copy<std::string>(private_nh_.getNamespace());
 

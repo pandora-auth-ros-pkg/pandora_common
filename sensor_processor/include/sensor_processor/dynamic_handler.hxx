@@ -54,6 +54,7 @@ namespace sensor_processor
 
   DynamicHandler::
   DynamicHandler(bool load) :
+    Handler(),
     processor_loader_("sensor_processor", "sensor_processor::AbstractProcessor")
   {
     currentState_ = state_manager_msgs::RobotModeMsg::MODE_OFF;
@@ -246,6 +247,9 @@ namespace sensor_processor
     }
 
     transitionComplete(this->currentState_);
+
+    ROS_INFO("[%s] Changed to state %s",
+        this->name_.c_str(), ROBOT_STATES(this->currentState_).c_str());
   }
 
   void

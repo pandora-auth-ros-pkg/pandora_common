@@ -87,8 +87,7 @@ namespace sensor_processor
     }
 
     bool
-    process(boost::shared_ptr<boost::any> input,
-        boost::shared_ptr<boost::any> output)
+    process(boost::shared_ptr<boost::any> input, boost::shared_ptr<boost::any> output)
     {
       InputConstPtr in;
       OutputPtr out( new Output );
