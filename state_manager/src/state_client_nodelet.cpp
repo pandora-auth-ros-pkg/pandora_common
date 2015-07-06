@@ -53,28 +53,18 @@ namespace state_manager
   StateClientNodelet::
   onInit()
   {
-    ROS_WARN("state_client_nodelet onInit");
-    ROS_WARN("ispiiii onInit");
     nh_ = this->getNodeHandle();
-    ROS_WARN("nh");
     private_nh_ = this->getPrivateNodeHandle();
-    ROS_WARN("private nh");
     node_name_ = boost::to_upper_copy<std::string>(this->getName());
-    ROS_WARN("name");
-    NODELET_WARN("1");
 
     acknowledgePublisher_ = nh_.advertise<state_manager_msgs::RobotModeMsg>
     ("/robot/state/server", 1, true);
-    NODELET_WARN("2");
 
     stateSubscriber_ = nh_.subscribe("/robot/state/clients", 2,
       &StateClientNodelet::serverStateInformation, this);
-    NODELET_WARN("3");
 
     bool register_client;
-    ROS_WARN("yeah");
     private_nh_.param("register_client", register_client, true);
-    ROS_WARN("register client flag is: %d", int(register_client));
 
     if (register_client)
       clientRegister();
@@ -85,23 +75,23 @@ namespace state_manager
 
   ros::NodeHandle&
   StateClientNodelet::
-  getPublicNodeHandle()
+  getPublicNh()
   {
-    return this->getNodeHandle();
+    return this->nh_;
   }
 
   ros::NodeHandle&
   StateClientNodelet::
-  getPrivateNodeHandle()
+  getPrivateNh()
   {
-    return this->getPrivateNodeHandle();
+    return this->private_nh_;
   }
 
-  std::string&
+  const std::string&
   StateClientNodelet::
-  getName()
+  getNodeName()
   {
-    return this->getName();
+    return this->node_name_;
   }
 
   void

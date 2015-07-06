@@ -65,9 +65,6 @@ namespace sensor_processor
 
     PreProcessor() {}
 
-    virtual
-    ~PreProcessor() {}
-
     virtual bool
     preProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
@@ -76,7 +73,7 @@ namespace sensor_processor
     {
       GeneralProcessor::initialize(ns, handler);
 
-      ros::NodeHandle private_nh = handler->getPrivateNodeHandle();
+      ros::NodeHandle private_nh = handler->getPrivateNh();
 
       XmlRpc::XmlRpcValue inputTopics;
       if (!private_nh.getParam("subscribed_topics", inputTopics))

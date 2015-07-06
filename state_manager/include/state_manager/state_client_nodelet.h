@@ -107,13 +107,13 @@ namespace state_manager
     onInit();
 
     ros::NodeHandle&
-    getPublicNodeHandle();
+    getPublicNh();
 
     ros::NodeHandle&
-    getPrivateNodeHandle();
+    getPrivateNh();
 
-    std::string&
-    getName();
+    const std::string&
+    getNodeName();
 
     void
     clientRegister();

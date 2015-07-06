@@ -62,7 +62,6 @@ namespace sensor_processor
   DynamicHandler::
   onInit()
   {
-    ROS_WARN("dynamic_handler onInit");
     Handler::onInit();
 
     processor_loader_ptr_.reset( new pluginlib::

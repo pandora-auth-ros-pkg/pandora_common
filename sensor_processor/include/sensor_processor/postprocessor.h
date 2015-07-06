@@ -64,9 +64,6 @@ namespace sensor_processor
 
     PostProcessor() {}
 
-    virtual
-    ~PostProcessor() {}
-
     virtual bool
     postProcess(const InputConstPtr& input, const OutputPtr& output) = 0;
 
@@ -75,7 +72,7 @@ namespace sensor_processor
     {
       GeneralProcessor::initialize(ns, handler);
 
-      ros::NodeHandle private_nh = handler->getPrivateNodeHandle();
+      ros::NodeHandle private_nh = handler->getPrivateNh();
 
       std::string outputTopic;
       if (!private_nh.getParam("published_topics", outputTopic))

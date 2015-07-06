@@ -57,7 +57,10 @@ namespace sensor_processor
    public:
     GeneralProcessor() {}
     virtual
-    ~GeneralProcessor() {}
+    ~GeneralProcessor()
+    {
+      ROS_INFO("[%s] Destroyed", name_.c_str());
+    }
     virtual void
     initialize(const std::string& ns, Handler* handler);
 
@@ -75,12 +78,12 @@ namespace sensor_processor
   void
   GeneralProcessor::initialize(const std::string& ns, Handler* handler)
   {
-    ros::NodeHandle private_nh = handler->getPrivateNodeHandle();
+    ros::NodeHandle private_nh = handler->getPrivateNh();
     std::string private_ns = private_nh.getNamespace();
     ROS_ASSERT(ns[0] == "~");
     std::string processor_ns = private_ns + "/" + ns.substr(1);
     this->processor_nh_ = ros::NodeHandle(processor_ns);
-    this->public_nh_ = handler->getPublicNodeHandle();
+    this->public_nh_ = handler->getPublicNh();
     this->name_ = boost::to_upper_copy<std::string>(this->processor_nh_.getNamespace());
     ROS_INFO("[%s] Initialized", this->name_.c_str());
   }

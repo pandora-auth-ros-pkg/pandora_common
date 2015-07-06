@@ -57,12 +57,11 @@ namespace sensor_processor
   Handler::
   onInit()
   {
-    ROS_WARN("handler onInit");
     state_manager::StateClientNodelet::onInit();
 
-    nh_ = this->getPublicNodeHandle();
-    private_nh_ = this->getPrivateNodeHandle();
-    name_ = this->getName();
+    nh_ = this->getPublicNh();
+    private_nh_ = this->getPrivateNh();
+    name_ = this->getNodeName();
 
     std::string reportTopicName;
 

@@ -64,9 +64,6 @@ namespace sensor_processor
 
     Processor() {}
 
-    virtual
-    ~Processor() {}
-
     virtual bool
     process(const InputConstPtr& input, const OutputPtr& output) = 0;
 
