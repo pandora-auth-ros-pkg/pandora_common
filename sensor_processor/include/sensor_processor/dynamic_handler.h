@@ -61,45 +61,6 @@ namespace sensor_processor
   class DynamicHandler : public Handler
   {
    public:
-    static int ROBOT_STATES(const std::string& X) {
-      static std::map<std::string, int>* m = NULL;
-      if (m == NULL)
-      {
-        m = new std::map<std::string, int>;
-        m->insert(std::make_pair("OFF", 0));
-        m->insert(std::make_pair("START_AUTONOMOUS", 1));
-        m->insert(std::make_pair("EXPLORATION_RESCUE", 2));
-        m->insert(std::make_pair("IDENTIFICATION", 3));
-        m->insert(std::make_pair("SENSOR_HOLD", 4));
-        m->insert(std::make_pair("SEMI_AUTONOMOUS", 5));
-        m->insert(std::make_pair("TELEOPERATED_LOCOMOTION", 6));
-        m->insert(std::make_pair("SENSOR_TEST", 7));
-        m->insert(std::make_pair("EXPLORATION_MAPPING", 8));
-        m->insert(std::make_pair("TERMINATING", 9));
-      }
-      return (*m)[X];
-    }
-
-    static std::string ROBOT_STATES(int X) {
-      static std::map<int, std::string>* m = NULL;
-      if (m == NULL)
-      {
-        m = new std::map<int, std::string>;
-        m->insert(std::make_pair(0, "OFF"));
-        m->insert(std::make_pair(1, "START_AUTONOMOUS"));
-        m->insert(std::make_pair(2, "EXPLORATION_RESCUE"));
-        m->insert(std::make_pair(3, "IDENTIFICATION"));
-        m->insert(std::make_pair(4, "SENSOR_HOLD"));
-        m->insert(std::make_pair(5, "SEMI_AUTONOMOUS"));
-        m->insert(std::make_pair(6, "TELEOPERATED_LOCOMOTION"));
-        m->insert(std::make_pair(7, "SENSOR_TEST"));
-        m->insert(std::make_pair(8, "EXPLORATION_MAPPING"));
-        m->insert(std::make_pair(9, "TERMINATING"));
-      }
-      return (*m)[X];
-    }
-
-   public:
     explicit DynamicHandler(bool load=true);
 
     template <class PreProcessor>

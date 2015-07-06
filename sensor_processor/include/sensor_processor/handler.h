@@ -46,35 +46,21 @@
 #include <ros/forwards.h>
 
 #include "state_manager/state_client.h"
+
 #include "sensor_processor/abstract_processor.h"
 
 namespace sensor_processor
 {
-  class Handler : public StateClient
+  class Handler : public state_manager::StateClient
   {
    public:
     Handler();
     virtual
     ~Handler();
 
-    ros::NodeHandle&
-    getPublicNodeHandle();
-
-    ros::NodeHandle&
-    getPrivateNodeHandle();
-
-    std::string
-    getName();
-
     template <class SubType>
     void
     completeProcessCallback(const boost::shared_ptr<SubType const>& subscribedTypePtr);
-
-   protected:
-    virtual void
-    startTransition(int newState) {}
-    virtual void
-    completeTransition() {}
 
    private:
     void

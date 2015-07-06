@@ -247,9 +247,6 @@ namespace sensor_processor
     }
 
     transitionComplete(this->currentState_);
-
-    ROS_INFO("[%s] Changed to state %s",
-        this->name_.c_str(), ROBOT_STATES(this->currentState_).c_str());
   }
 
   void

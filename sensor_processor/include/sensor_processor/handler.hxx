@@ -49,11 +49,14 @@
 
 namespace sensor_processor
 {
+
   Handler::
   Handler() :
-    StateClient(true), nh_(""), private_nh_("~")
+    state_manager::StateClient(true)
   {
-    name_ = boost::to_upper_copy<std::string>(private_nh_.getNamespace());
+    nh_ = this->getPublicNodeHandle();
+    private_nh_ = this->getPrivateNodeHandle();
+    name_ = this->getName();
 
     std::string reportTopicName;
 
@@ -68,27 +71,6 @@ namespace sensor_processor
   ~Handler()
   {
     ROS_INFO("[%s] terminated", name_.c_str());
-  }
-
-  ros::NodeHandle&
-  Handler::
-  getPublicNodeHandle()
-  {
-    return nh_;
-  }
-
-  ros::NodeHandle&
-  Handler::
-  getPrivateNodeHandle()
-  {
-    return private_nh_;
-  }
-
-  std::string
-  Handler::
-  getName()
-  {
-    return name_;
   }
 
   template <class SubType>

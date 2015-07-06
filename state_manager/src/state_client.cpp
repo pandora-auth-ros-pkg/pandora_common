@@ -1,117 +1,176 @@
-/**
- * File Description: State Manager - Client Implementation
+/*********************************************************************
  *
- * Contents: Methods for implementing nodes as clients for changing
- * 			 states of operation
- * Methods:	 serverStateInformation, clientRegister, startTransition,
- * 			 transitionComplete, completeTransition, transitionToState
+ * Software License Agreement (BSD License)
  *
- * Author: Software Architecture Team
+ *  Copyright (c) 2015, P.A.N.D.O.R.A. Team.
+ *  All rights reserved.
  *
- * Date: 15 April 2011
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
  *
- * Change History: -
- */
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the P.A.N.D.O.R.A. Team nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Authors:
+ *   Software Architecture team
+ * Maintainer:
+ *   Tsirigotis Christos <tsirif@gmail.com>
+ *********************************************************************/
 
+#include <string>
+#include <boost/algorithm/string.hpp>
 
 #include "state_manager/state_client.h"
 
-StateClient::StateClient (bool doRegister) : _nh() {
-	name = ros::this_node::getName();
-	_acknowledgePublisher = _nh.advertise<state_manager_msgs::RobotModeMsg>
-	("/robot/state/server", 5, true);
-
-	_stateSubscriber = _nh.subscribe("/robot/state/clients",10,
-	&StateClient::serverStateInformation, this);
-
-	if (doRegister)
-		clientRegister();
-}
-
-void StateClient::clientRegister()
+namespace state_manager
 {
-	while (!ros::service::waitForService("/robot/state/register",
-	ros::Duration(.1)) && ros::ok()) {
 
-		ROS_ERROR("[%s] Couldn't find service /robot/state/register", name.c_str());
-		ros::spinOnce();
-	}
-	_registerServiceClient = _nh.serviceClient<state_manager_msgs::RegisterNodeSrv>
-	("/robot/state/register");
+  StateClient::
+  StateClient(bool doRegister) : nh_(""), private_nh_("~")
+  {
+    node_name_ = boost::to_upper_copy<std::string>(private_nh_.getNamespace());
 
-	state_manager_msgs::RegisterNodeSrv rq;
-	rq.request.nodeName = name;
-	rq.request.type = state_manager_msgs::RegisterNodeSrvRequest::TYPE_STARTED;
+    acknowledgePublisher_ = nh_.advertise<state_manager_msgs::RobotModeMsg>
+    ("/robot/state/server", 1, true);
 
-	while (!_registerServiceClient.call(rq) && ros::ok())
-		ROS_ERROR("[%s] Failed to register node. Retrying...", name.c_str());
-}
+    stateSubscriber_ = nh_.subscribe("/robot/state/clients", 2,
+      &StateClient::serverStateInformation, this);
 
+    if (doRegister)
+      clientRegister();
+  }
 
-void StateClient::clientInitialize()
-{
-	while (!ros::service::waitForService("/robot/state/register",
-	ros::Duration(.1)) && ros::ok()) {
+  StateClient::
+  ~StateClient() {}
 
-		ROS_ERROR("[%s] Couldn't find service /robot/state/register", name.c_str());
-		ros::spinOnce();
-	}
-	_registerServiceClient = _nh.serviceClient<state_manager_msgs::RegisterNodeSrv>
-	("/robot/state/register");
+  ros::NodeHandle&
+  StateClient::
+  getPublicNodeHandle()
+  {
+    return nh_;
+  }
 
-	state_manager_msgs::RegisterNodeSrv rq;
-	rq.request.nodeName = name;
-	rq.request.type = state_manager_msgs::RegisterNodeSrvRequest::TYPE_INITIALIZED;
+  ros::NodeHandle&
+  StateClient::
+  getPrivateNodeHandle()
+  {
+    return private_nh_;
+  }
 
-	while (!_registerServiceClient.call(rq) && ros::ok())
-		ROS_ERROR("[%s] Failed to register node. Retrying...", name.c_str());
-}
+  std::string
+  StateClient::
+  getName()
+  {
+    return node_name_;
+  }
 
-void StateClient::startTransition(int newState) {
+  void
+  StateClient::
+  clientRegister()
+  {
+    while (!ros::service::waitForService("/robot/state/register",
+          ros::Duration(.1)) && ros::ok())
+    {
+      ROS_ERROR("[%s] Couldn't find service /robot/state/register", node_name_.c_str());
+      ros::spinOnce();
+    }
+    registerServiceClient_ = nh_.
+      serviceClient<state_manager_msgs::RegisterNodeSrv>("/robot/state/register");
 
-	ROS_INFO("[%s] Starting Transition to state %i",name.c_str(), newState);
-	transitionComplete(newState);
-}
+    state_manager_msgs::RegisterNodeSrv rq;
+    rq.request.nodeName = node_name_;
+    rq.request.type = state_manager_msgs::RegisterNodeSrvRequest::TYPE_STARTED;
 
-void StateClient::transitionComplete(int newState){
+    while (!registerServiceClient_.call(rq) && ros::ok())
+      ROS_ERROR("[%s] Failed to register node. Retrying...", node_name_.c_str());
+  }
 
-	ROS_INFO("[%s] Node Transition to state %i Completed",name.c_str(), newState);
+  void
+  StateClient::
+  clientInitialize()
+  {
+    while (!ros::service::waitForService("/robot/state/register",
+          ros::Duration(.1)) && ros::ok())
+    {
+      ROS_ERROR("[%s] Couldn't find service /robot/state/register", node_name_.c_str());
+      ros::spinOnce();
+    }
+    registerServiceClient_ = nh_.
+      serviceClient<state_manager_msgs::RegisterNodeSrv>("/robot/state/register");
 
-	state_manager_msgs::RobotModeMsg msg;
-	msg.nodeName = name;
-	msg.mode = newState;
-	msg.type = state_manager_msgs::RobotModeMsg::TYPE_ACK;
-	_acknowledgePublisher.publish(msg);
-}
+    state_manager_msgs::RegisterNodeSrv rq;
+    rq.request.nodeName = node_name_;
+    rq.request.type = state_manager_msgs::RegisterNodeSrvRequest::TYPE_INITIALIZED;
 
-void StateClient::completeTransition(){
-	ROS_INFO("[%s] System Transitioned, starting work", name.c_str());
-}
+    while (!registerServiceClient_.call(rq) && ros::ok())
+      ROS_ERROR("[%s] Failed to register node. Retrying...", node_name_.c_str());
+  }
 
-void StateClient::transitionToState(int newState){
+  void
+  StateClient::
+  transitionComplete(int newState)
+  {
+    ROS_INFO("[%s] transitioned to state %s",
+        node_name_.c_str(), ROBOT_STATES(newState).c_str());
 
-	ROS_INFO("[%s] Requesting transition to state %i",name.c_str(), newState);
-	state_manager_msgs::RobotModeMsg msg;
-	msg.nodeName = name;
-	msg.mode = newState;
-	msg.type = state_manager_msgs::RobotModeMsg::TYPE_REQUEST;
-	_acknowledgePublisher.publish(msg);
+    state_manager_msgs::RobotModeMsg msg;
+    msg.nodeName = node_name_;
+    msg.mode = newState;
+    msg.type = state_manager_msgs::RobotModeMsg::TYPE_ACK;
+    acknowledgePublisher_.publish(msg);
+  }
 
-}
+  void
+  StateClient::
+  transitionToState(int newState)
+  {
+    ROS_INFO("[%s] Requesting transition to state %i", node_name_.c_str(), newState);
+    state_manager_msgs::RobotModeMsg msg;
+    msg.nodeName = node_name_;
+    msg.mode = newState;
+    msg.type = state_manager_msgs::RobotModeMsg::TYPE_REQUEST;
+    acknowledgePublisher_.publish(msg);
+  }
 
-void StateClient::serverStateInformation(const state_manager_msgs::RobotModeMsgConstPtr& msg) {
-	ROS_INFO("[%s] Received new information from state server",name.c_str());
+  void
+  StateClient::
+  serverStateInformation(const state_manager_msgs::RobotModeMsgConstPtr& msg)
+  {
+    // ROS_INFO("[%s] Received new information from state server", node_name_.c_str());
+    if (msg->type == state_manager_msgs::RobotModeMsg::TYPE_TRANSITION)
+    {
+      this->startTransition(msg->mode);
+    }
+    else if (msg->type == state_manager_msgs::RobotModeMsg::TYPE_START)
+    {
+      this->completeTransition();
+    }
+    else
+    {
+      ROS_ERROR("[%s] StateClient received a new state command, that is not understandable",
+      node_name_.c_str());
+    }
+  }
 
-	if (msg->type == state_manager_msgs::RobotModeMsg::TYPE_TRANSITION) {
-		startTransition(msg->mode);
-
-	} else if (msg->type == state_manager_msgs::RobotModeMsg::TYPE_START) {
-		completeTransition();
-
-	} else {
-		ROS_ERROR("[%s] StateClient received a new state command, that is not understandable",
-		name.c_str());
-	}
-}
-
-
+}  // namespace state_manager
