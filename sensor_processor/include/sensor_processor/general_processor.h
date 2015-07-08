@@ -80,7 +80,7 @@ namespace sensor_processor
   {
     ros::NodeHandle private_nh = handler->getPrivateNh();
     std::string private_ns = private_nh.getNamespace();
-    ROS_ASSERT(ns[0] == "~");
+    ROS_ASSERT(ns[0] == '~');
     std::string processor_ns = private_ns + "/" + ns.substr(1);
     this->processor_nh_ = ros::NodeHandle(processor_ns);
     this->public_nh_ = handler->getPublicNh();
